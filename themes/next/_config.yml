@@ -1,0 +1,120 @@
+# Hexo Configuration
+## Docs: https://hexo.io/docs/configuration.html
+## Source: https://github.com/hexojs/hexo/
+
+# Site
+# 网站标题
+title: 为知
+# 网站副标题
+subtitle: 只想做一名工匠
+# 网站描述
+description: 有些东西需要记下来，怕忘记
+# 作者名称
+author: yummyLau
+# 使用语言
+language: zh-Hans
+# 使用多说，自添加
+duoshuo_shortname: yummylau
+# 头像
+avatar: /uploads/avatar.jpg
+# 站点创建时间
+since: 2016
+timezone:
+
+
+# URL-------------------------------------------------------------------------------------------------
+## If your site is put in a subdirectory, set url as 'http://yoursite.com/child' and root as '/child/'
+# 网址
+url: http://yummylau.com
+# 网站根目录
+root: /
+# 文章永久链接
+permalink: :year/:month/:day/:title/
+# 永久链接中各部分的默认值
+permalink_defaults:
+
+# Directory--------------------------------------------------------------------------------------------
+# 资源文件夹，存放内容
+source_dir: source
+# 公共文件夹，用于存放生成的站点文件
+public_dir: public
+# 标签文件夹
+tag_dir: tags
+# 归档文件夹
+archive_dir: archives
+# 分类文件夹
+category_dir: categories
+# include code文件夹
+code_dir: downloads/code
+# 国家化i18n文件夹
+i18n_dir: :lang
+# 跳过制定的文件渲染
+skip_render:
+
+# Writing-----------------------------------------------------------------------------------------------
+# 新文章名称
+new_post_name: :title.md 
+# 预设布局
+default_layout: post
+# 是否把标题转成title case
+titlecase: false 
+# 在新标签中打开连接
+external_link: true
+# 把文件名称转换为小写或者大写
+filename_case: 0
+# 显示草稿
+render_drafts: false
+# 启动Asset文件夹
+post_asset_folder: false
+# 把链接改成与根目录的相对位址
+relative_link: false
+# 显示未来的文章
+future: true
+# 代码块设置
+highlight:
+  enable: true
+  line_number: true
+  auto_detect: true
+  tab_replace:
+
+# Category & Tag-----------------------------------------------------------------------------------------
+# 默认分类
+default_category: uncategorized
+# 分类别名
+category_map:
+# 标签别名
+tag_map:
+
+# Date / Time format--------------------------------------------------------------------------------------
+## Hexo uses Moment.js to parse and display date
+## You can customize the date format as defined in
+## http://momentjs.com/docs/#/displaying/format/
+# 日期格式
+date_format: YYYY-MM-DD
+# 时间格式
+time_format: HH:mm:ss
+
+# Pagination----------------------------------------------------------------------------------------------
+## Set per_page to 0 to disable pagination
+# 每页显示文章量，0表示关闭分页功能
+per_page: 10
+# 分页目录
+pagination_dir: page
+
+# Social links--------------------------------------------------------------------------------------------
+social:
+    github: https://github.com/YummyLau
+    
+# 谷歌统计
+
+# Extensions
+## Plugins: https://hexo.io/plugins/
+## Themes: next
+theme: next
+
+# Deployment
+## Docs: https://hexo.io/docs/deployment.html
+deploy:
+  type: git
+  repository: https://github.com/YummyLau/yummylau.github.io.git
+  branch: master 

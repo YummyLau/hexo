@@ -1,0 +1,51 @@
+---
+title: Hexo操作与理解
+layout: post
+date: 2016-10-21 14:45:43
+comments: true
+categories: Hexo
+tags: [Hexo]
+---
+<!--more-->
+# hexo文件结构
+<pre><code>├── .deploy       #部署的文件  
+├── node_modules  #Hexo插件  
+├── public        #生成的静态网页文件  
+├── scaffolds     #模板，定义新文章初始样式  
+├── source        #博客正文和其他源文件, 404 favicon CNAME 等都应该放在这里  
+&emsp;&emsp;&emsp;├── _drafts    #草稿  
+&emsp;&emsp;&emsp;└── _posts     #文章  
+├── themes        #主题  
+├── _config.yml   #全局配置文件  
+└── package.json
+</code></pre>
+# hexo更新
+<pre><code>
+npm update -g hexo　　            #更新hexo  
+cd themes/主题  ->  git pull      #更新主题
+
+</code></pre>
+# hexo基础操作
+<pre><code>hexo n "title"               #创建新文章   
+hexo new [layout] "title"    #创建新文章 
+hexo new page "about"        ＃创建新页面
+hexo generate  <=>  hexo g   #生成静态页面    
+hexo generate --watch         #监视文件变动   
+hexo deploy  <=>  hexo d     #部署  
+hexo server                  #运行    
+hexo server -p 4000          #更改端口    
+hexo clean                   #清除缓存     
+</code></pre>  
+#  hexo文章模板
+<pre><code>title: title                                 #文章名称
+layout: post                                 #布局，可省略
+date: 2016-10-21 14:07:43                    #创建时间  
+comments: true                               #是否可评论
+categories: Blog                             #文章分类
+tags: [Hexo] 多个tags用格式[tag1,tag2,tag3...] #文章tag
+keywords: Hexo, Blog                          #关键字
+</code></pre>
+## 参考文章 
+>[hexo常用命令](http://springxiege.github.io/2016/07/14/hexo-command/)  
+>[hexo你的博客](http://ibruce.info/2013/11/22/hexo-your-blog/?utm_source=tuicool&utm_medium=referral) 
+
