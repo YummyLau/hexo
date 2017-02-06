@@ -132,7 +132,7 @@ getWindow().getDecorView().getRootView().setSystemUiVisibility(View.SYSTEM_UI_FL
 
 这里以点播为例子：
 
-<iframe height=640 width=360 src="http://ojyx20l6a.bkt.clouddn.com/SVID_20170120_170924~9.mp4" frameborder=0 allowfullscreen></iframe>
+<iframe height=640 width=360 src="http://ojyx20l6a.bkt.clouddn.com/system_ui_test_demo.mp4" frameborder=0 allowfullscreen></iframe>
 
 这里我们有一个权衡的问题：对于华为系用户随时可隐藏导航栏而言，如果底部有内容且可以点击（比如评论条），如果选择隐藏导航栏，则有导航栏的手机导航栏就消失了，失去了返回（其实还有Home等）的入口，当然我们可在视频左上添加一个返回上一级的按钮，但用户体验可能不太好。因为大多数使用有导航栏手机的用户都会习惯使用导航栏来返回，会因为我们app的导航栏隐藏而感觉操作不方便。因此，最多只能透明处理。如果选择透明化，要不要把内容入侵进去，不建议这么做，原因刚才说了，如果存在评论条，那么就破坏了原本界面的设计，只能通过设置padding或者margin来让布局贴在导航栏上面。那可恶心的事就发生了，如果用户突然自主隐藏导航栏，那么我们的布局下突然多了一块空白的区域...因此，我们在竖屏的时候舍弃了导航栏隐藏或者透明化的想法。
 
