@@ -38,7 +38,9 @@ tags: [热修复]
 # Demo集成开发
 
 通过集成Tinker SDK来生成补丁包，而官方推荐的补丁包分发则通过[Tinker Platform](http://www.tinkerpatch.com/)来实现。**Tinker Platform**是官方提供的付费分发平台，支持补丁分发监控等功能。如果是小应用则可考虑接入，否则可自行开发CMS补丁管理后台来实现其支持的功能。在预研过程中接入过**Tinker Platform**，实现起来比较简单，可参考[官网Demo](https://github.com/TinkerPatch/tinkerpatch-sample)来实现。
-<iframe height=640 width=360 src="http://ojyx20l6a.bkt.clouddn.com/tinker_test_demo.mp4" frameborder=0 allowfullscreen></iframe>
+<video id="video" controls="" preload="none" height=640 width=360 poster=""  autoplay muted >
+      <source id="mp4" src="http://ojyx20l6a.bkt.clouddn.com/tinker_test_demo.mp4" type="video/mp4">
+    </video>
 这里我们才用比较传统的思路来模拟一次分发：客户端主动轮训补丁下载后台或者被动接收推送信令后主动请求下载补丁，然后在客户端中通过Tinker SDK完成补丁的载入与修复，只要理解大致的思路，完全可以开发出满足自身业务的功能。Demo中由于锁屏会默认终端录制，所以选择在修复完之后故意crash一次达到重启，实际项目中可带到锁屏或者应用进入后台之后进行重启即可。
 
 

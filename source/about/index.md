@@ -6,7 +6,7 @@ date: 2016-10-20 14:25:06
 # 关于我
 &emsp;&emsp;**姓名**：刘彦明  
 &emsp;&emsp;**学历**：本科毕业  
-&emsp;&emsp;**技能**：偏爱Android开发  
+&emsp;&emsp;**技能**：主做Android开发，涉略前端后端等知识
 &emsp;&emsp;**爱好**：打篮球，学投资，健健身，玩游戏，游泳，唱歌，看书写书法  
 &emsp;&emsp;**现状**：Netease 安卓工程师  
  
