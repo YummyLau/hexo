@@ -10,7 +10,7 @@ tags: [优化搜索]
 #  验证网站
 想让搜索引擎能通过特定域名定位到自己的网站，首先你得告诉搜索引擎，这个网站是你的！因此，我们得先验证网站。
 ## 谷歌 Search Console
-1. 登录 [谷歌 Search Console]("https://www.google.com/webmasters/tools/home") ，输入我们要校验的网站域名。
+1. 登录 [谷歌 Search Console](https://www.google.com/webmasters/tools/home) ，输入我们要校验的网站域名。
 2. 谷歌有多种校验网站的方式　　
 	*  上传HTML文件校验　　
 	*   添加HTML元标记　　
@@ -19,7 +19,7 @@ tags: [优化搜索]
 	*  CNAME验证　　
 	
 ## 百度站长平台　
-1. 登录 [百度站长平台]("http://zhanzhang.baidu.com/dashboard/index") ，同样输入我们要校验的网站域名添加站点。
+1. 登录 [百度站长平台](http://zhanzhang.baidu.com/dashboard/index) ，同样输入我们要校验的网站域名添加站点。
 2. 百度也有种校验网站的方式　　
 	*  上传HTML文件校验　　
 	*   添加HTML元标记　　
@@ -55,11 +55,12 @@ yummylau.com/sitemap.xml
 yummylau.com/baidusitemap.xml
 ```
 ## 上传sitemap文件
-* 在 [谷歌 Search Console]("https://www.google.com/webmasters/tools/home") ->**抓取**-> **站点地图**->**添加测试网点地图**中添加:
+* 在 [谷歌 Search Console](https://www.google.com/webmasters/tools/home) ->**抓取**-> **站点地图**->**添加测试网点地图**中添加:
 ```
-yummylau.com/sitemap.xml
+yummylau.com/sitemap.xml星期六, 18. 三月 2017 03:17下午 
+
 ```
-*  在[百度站长平台]("http://zhanzhang.baidu.com/dashboard/index") ->**网页抓取**-> **链接提交**->**自动提交**中添加:
+*  在[百度站长平台](http://zhanzhang.baidu.com/dashboard/index) ->**网页抓取**-> **链接提交**->**自动提交**中添加:
 ```
 yummylau.com/baidusitemap.xml
 ```
@@ -84,7 +85,7 @@ yummylau.com/baidusitemap.xml
 Hexo每次都会根据主题下的模板来生成对应的页面，所以我们可以把这段代码放在根目录下`themes\next\layout\_layout.swig`文件中`<body>`的最后面。设置完之后重新`hexo g`之后`hexo d`就能把服务器上的博文源码中插入上述脚本了。
 
 #  参考文章
-[hexo干货系列：（六）hexo提交搜索引擎（百度+谷歌)]("http://www.jianshu.com/p/619dab2d3c08")
-[让Baidu和Google收录Hexo博客]("http://www.franktly.com/2016/07/06/%E8%AE%A9Baidu%E5%92%8CGoogle%E6%94%B6%E5%BD%95Hexo%E5%8D%9A%E5%AE%A2/")
+[hexo干货系列：（六）hexo提交搜索引擎（百度+谷歌)](http://www.jianshu.com/p/619dab2d3c08)
+[让Baidu和Google收录Hexo博客](http://www.franktly.com/2016/07/06/%E8%AE%A9Baidu%E5%92%8CGoogle%E6%94%B6%E5%BD%95Hexo%E5%8D%9A%E5%AE%A2/)
 感谢作者们的分享！
 	
