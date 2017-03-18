@@ -108,7 +108,11 @@ social:
 # 谷歌统计
 
 # Extensions
-## Plugins: https://hexo.io/plugins/
+Plugins: \- hexo-generator-sitemap
+sitemap:
+    path: sitemap.xml
+baidusitemap:
+    path: baidusitemap.xml
 ## Themes: next
 theme: next
 
