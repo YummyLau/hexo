@@ -1,0 +1,90 @@
+---
+title: 优化Hexo的搜索收录
+date: 2017-03-18 13:43:21
+comments: true
+categories: Hexo
+tags: [优化搜索]
+---
+>最近发现之前写的博客在谷歌和百度的搜索中并没有被展示，搜索"yummylau"得到的大部分内容也是之前在csdn写的大部分文章。了解了一些原因和参考了网站的一些做法，优化了本博客的搜索效果，整个过程小做记录，可供参考。
+
+#  验证网站
+想让搜索引擎能通过特定域名定位到自己的网站，首先你得告诉搜索引擎，这个网站是你的！因此，我们得先验证网站。
+## 谷歌 Search Console
+1. 登录 [谷歌 Search Console]("https://www.google.com/webmasters/tools/home") ，输入我们要校验的网站域名。
+2. 谷歌有多种校验网站的方式　　
+	*  上传HTML文件校验　　
+	*   添加HTML元标记　　
+	*  使用Google  Analytics分析　　
+	*  Ｇoogle 跟踪代码管理器　　
+	*  CNAME验证　　
+	
+## 百度站长平台　
+1. 登录 [百度站长平台]("http://zhanzhang.baidu.com/dashboard/index") ，同样输入我们要校验的网站域名添加站点。
+2. 百度也有种校验网站的方式　　
+	*  上传HTML文件校验　　
+	*   添加HTML元标记　　
+	*  CNAME验证　　
+	
+## CNAME验证
+一开始，我下了百度和谷歌的HTML校验文件并上传到自己网站服务器根目录(Hexo博客则放在source目录下在`hexo d`自动部署根目录)，然而验证页面完全打开就是一直301验证不过，目测和我github.io的重定向有很大关系。后面直接改为使用CNAME验证。
+我的域名是去年在阿里云买的，所以直接登录阿里云平台。在解析设置中直接添加百度和谷歌的CNAME验证内容就搞定了！
+
+#  优化搜索
+首先，你得了解站点地图Sitemap是什么东西。举个例子，天猫官网上有很多分类，每个分类下有很多品种，每个品种下很多牌子...比如**生活用品/护肤产品/洗面奶**...点进去某个洗面奶的商品就会进入一个关于这个洗面奶的页面。这么庞大的信息结构及众多页面，搜索引擎得慢慢一个一个爬，爬到了的你才可能搜索得到。而Sitemap能提供包含某个网站的所有链接，让搜索引擎更方便地收录这些网站内容。
+## 生成sitemap文件
+* 安装谷歌百度生成sitemap器
+```
+//谷歌
+npm install hexo-generator-sitemap  --save
+//百度
+npm install hexo-generator-baidu-sitemap  --save
+```
+*  在hexo根目录下`_config.yml`文件中添加插件配置
+```
+# Extensions
+Plugins: \- hexo-generator-sitemap
+sitemap:
+    path: sitemap.xml
+baidusitemap:
+    path: baidusitemap.xml
+```
+*  `hexo g`直接在`public`文件中生成`sitemap.xml`和`baidusitemap.xml`
+* `hexo d`直接部署上服务器，在服务器根目录下可直接访问这两个文件
+```
+yummylau.com/sitemap.xml
+yummylau.com/baidusitemap.xml
+```
+## 上传sitemap文件
+* 在 [谷歌 Search Console]("https://www.google.com/webmasters/tools/home") ->**抓取**-> **站点地图**->**添加测试网点地图**中添加:
+```
+yummylau.com/sitemap.xml
+```
+*  在[百度站长平台]("http://zhanzhang.baidu.com/dashboard/index") ->**网页抓取**-> **链接提交**->**自动提交**中添加:
+```
+yummylau.com/baidusitemap.xml
+```
+## 自动推送到百度
+百度除了提供sitemap功能之外，还提供了**主动推送(实时)**和**自动推送**。主动推送需要我们自己去调用api接口处理，有需要这个功能的朋友可以自己diy一下。对于我们每一篇博文，我们希望写完之后能自动推送给百度收录，所以需要在博文页面中添加一段JS代码：
+```
+<script>
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+```
+Hexo每次都会根据主题下的模板来生成对应的页面，所以我们可以把这段代码放在根目录下`themes\next\layout\_layout.swig`文件中`<body>`的最后面。设置完之后重新`hexo g`之后`hexo d`就能把服务器上的博文源码中插入上述脚本了。
+
+#  参考文章
+[hexo干货系列：（六）hexo提交搜索引擎（百度+谷歌)]("http://www.jianshu.com/p/619dab2d3c08")
+[让Baidu和Google收录Hexo博客]("http://www.franktly.com/2016/07/06/%E8%AE%A9Baidu%E5%92%8CGoogle%E6%94%B6%E5%BD%95Hexo%E5%8D%9A%E5%AE%A2/")
+感谢作者们的分享！
+	
