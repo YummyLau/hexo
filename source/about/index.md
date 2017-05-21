@@ -9,6 +9,7 @@ date: 2016-10-20 14:25:06
 &emsp;&emsp;**技能**：主做Android开发，涉略前端后端等知识
 &emsp;&emsp;**爱好**：打篮球，学投资，健健身，玩游戏，游泳，唱歌，看书写书法  
 &emsp;&emsp;**现状**：Netease 安卓工程师  
+&emsp;&emsp;**负责项目**：网易菠萝，网易手机直播，炉石传说助手，我的世界合成Ｍod，网易游戏助手
  
 # 联系我
 &emsp;&emsp;**邮箱**：yummyl.lau@gmail.com  
