@@ -1,6 +1,7 @@
 ---
 title: hexo实现多端写bolg问题记录
 date: 2016-12-20 12:04:11
+updated: 2017-07-22 14:22
 comments: true
 categories: Hexo
 tags: [Hexo]
@@ -54,7 +55,7 @@ git subtree pull --prefix=themes/next next master --squash
 git subtree push --prefix=themes/next next master
 ```
 
-*  其他段的同步操作
+*  ~~其他段的同步操作~~
 
 ```
 git clone https://github.com/YummyLau/hexo.git
@@ -64,5 +65,14 @@ npm install
 npm install hexo-deployer-git
 ```
 
+*  其他段的同步操作(更新于2017/07/22)
+
+```
+git clone https://github.com/YummyLau/hexo.git
+cd hexo 
+npm install hexo-cli -g
+```
+
 ## 参考文章 
 >[hexo主题同步](http://w4lle.github.io/2016/06/06/Hexo-themes/)  
+>[hexo官网](https://hexo.io/)  
