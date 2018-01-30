@@ -1,11 +1,10 @@
 ---
 title: 源码解析 之 xml布局时如何生成view  
-date: 2018-01-30 20:11:00
-comments: true
-categories: Android
-tags: [源码解析]
+date: 2018-01-30 20:11:00  
+comments: true  
+categories: Android  
+tags: [源码解析]  
 ---
-
 这篇文章主要解决一个疑惑 “layout目录下XML文件是如何转化为View对象”。  
 源码阅读不应该是味如嚼蜡，带着问题去刨根问底可能会发现不同的世界。
 整篇文章较长，总共分为5个小结，如果你能完整地阅读完这5节并仔细琢磨其细节，相信必定会有很大收获。如有错误之处，望指出  
@@ -47,31 +46,30 @@ PhoneWindow.java
                     getContext());
             transitionTo(newScene);
         } else {
-  			//重点看这里
+		//重点看这里
             mLayoutInflater.inflate(layoutResID, mContentParent);
         }
 		//...
     }
 ```
-如果你不了解PhoneWindow，或者除*inflate*方法外都不了解。没有关系，我们只解决当前的问题。从我们接触的代码中至少可以发现*LayoutInflater*就是帮助我们把xml转化为view的中介。事实上它就是扮演这样的角色。
+如果你不了解`PhoneWindow`，或者除*inflate*方法外都不了解。没有关系，我们只解决当前的问题。从我们接触的代码中至少可以发现`LayoutInflater`就是帮助我们把*xml*转化为*view*的中介。事实上它就是扮演这样的角色。
 
 **小结**: *通过LayoutInflater#inflate可加载layout布局生成View对象*
 
 ### 读懂LayoutInflater并不难
 注释帮你读懂一个类，api教你使用一个类，摘了句核心的注释语句：
-> 1. Instantiates a layout XML file into its corresponding {@link android.view.View} objects.
 
-> 	将XML文件转化为对应的View对象。
+```
+1. Instantiates a layout XML file into its corresponding {@link android.view.View} objects.
+将XML文件转化为对应的View对象。
 
-> 2. use {@link android.app.Activity#getLayoutInflater()} or {@link Context#getSystemService} to retrieve a standard LayoutInflater.
+2. use {@link android.app.Activity#getLayoutInflater()} or {@link Context#getSystemService} to retrieve a standard LayoutInflater.
+使用注释中两个方法可以获取一个标准的LayoutInflater。
 
->	使用注释中两个方法可以获取一个标准的LayoutInflater。
-
-> 3. To create a new LayoutInflater with an additional {@link Factory} for your own views, you can use {@link #cloneInContext} to clone an existing ViewFactory, and then call {@link #setFactory} on it to include your Factory.
-
->	为了创建带有自定义Factory的LayoutInflater对象，你可以克隆一个当前已存在的ViewFactory并通过调用setFactory来设置自己的Factory对象。
-
-LayoutInflater干什么大概了解了，怎么获取也知道了，第三条Factroy是什么概念？根据注释可以猜测，可能是用于生产View的工厂。要产生Android大量的widget对象，这种模式再适合不过。
+3. To create a new LayoutInflater with an additional {@link Factory} for your own views, you can use {@link #cloneInContext} to clone an existing ViewFactory, and then call {@link #setFactory} on it to include your Factory.
+为了创建带有自定义Factory的LayoutInflater对象，你可以克隆一个当前已存在的ViewFactory并通过调用setFactory来设置自己的Factory对象。
+```
+`LayoutInflater`干什么大概了解了，怎么获取也知道了，第三条`Factroy`是什么概念？根据注释可以猜测，可能是用于生产`View`的工厂。要产生Android大量的*widget*对象，这种模式再适合不过。
 
 **小结**: *通过获取标准的LayoutInflater对象我们可以将XML文件转化为对应的View对象，并且可能可以通过自定义Factory来控制生成View的逻辑。*
 
@@ -81,15 +79,15 @@ LayoutInflater干什么大概了解了，怎么获取也知道了，第三条Fac
 
 ```
 LayoutInflater.java
-	// 1. 
+	// 1.
 	public View inflate(@LayoutRes int resource, @Nullable ViewGroup root) {
         return inflate(resource, root, root != null);
     }
-	// 2. 
+	// 2.
 	public View inflate(XmlPullParser parser, @Nullable ViewGroup root) {
         return inflate(parser, root, root != null);
     }
-	// 3. 
+	// 3.
     public View inflate(@LayoutRes int resource, @Nullable ViewGroup root, boolean attachToRoot) {
         final Resources res = getContext().getResources();
 		//...
@@ -102,12 +100,12 @@ LayoutInflater.java
     }
 
 ```
-源码中一共有四个inflate方法，上述显示前三个方法。1处调用3处的方法，先获取Resources`对象，再获取`XmlResourceParser`对象，最终调用2处方法，而2处方法中调用的是第四个方法。摘取了核心的注释及逻辑。
+源码中一共有四个*inflate*方法，上述显示前三个方法。1处调用3处的方法，先获取`Resources`对象，再获取`XmlResourceParser`对象，最终调用2处方法，而2处方法中调用的是第四个方法。摘取了核心的注释及逻辑。
 
 ```
 LayoutInflater.java
     /**
-     * Inflate a new view hierarchy from the specified XML node. 
+	 * Inflate a new view hierarchy from the specified XML node. 
 	 * 从特定的XML节点中解析View对象 
      * For performance reasons, view inflation relies heavily on pre-processing of 
  	 * XML files that is done at build time. Therefore, it is not currently possible 
@@ -125,8 +123,7 @@ LayoutInflater.java
             mConstructorArgs[0] = inflaterContext;
             View result = root;
 			//...
-            try {
-                // 2. 查找根节点
+				// 2. 查找根节点
                 int type;
                 while ((type = parser.next()) != XmlPullParser.START_TAG &&
                         type != XmlPullParser.END_DOCUMENT) {
@@ -192,17 +189,17 @@ LayoutInflater.java
 ```
 梳理下上述逻辑，可以得到以下大致的流程：
 
-* 先解析XML文件中的Attribute属性，保存在属性集
-* 遍历查找到第一个根节点。如果是<merge>，则把父容器作为父布局参数。反之，获取到根View，则把根View作为父布局参数，走rInflateChildren逻辑。
+* 先解析XML文件中的`Attribute`属性，保存在属性集
+* 遍历查找到第一个根节点。如果是`<merge>`，则把父容器作为父布局参数。反之，获取到根*view*，则把根*view*作为父布局参数，走*rInflateChildren*逻辑。
 * 根据父容器不为是否为空和是否需要附着在父容器来返回不同结果。
 
-基于上述解析第一个根节点的逻辑基础上可以猜测：`rInflateChildren`的处理逻辑应该是递归处理根节点下的节点树并解析成对应的View树，放父布局中。
+基于上述解析第一个根节点的逻辑基础上可以猜测：*rInflateChildren*的处理逻辑应该是递归处理根节点下的节点树并解析成对应的`View`树，放父布局中。
 
 **小结**: *inflate方法解析出根节点并根据根节点的类型设置不同的父布局，剩余子节点树递归解析成View树添加到父布局中*	
 
 ### 递归解析子节点
 
-无论根节点是否是<merge>，最终都会调用`rInflate`方法，只是<merge>不作为子View树的父容器，而是使用其上层的ViewGroup作为容器。
+无论根节点是否是`<merge>`，最终都会调用*rInflate*方法，只是`<merge>`不作为子`View树`的父容器，而是使用其上层的`ViewGroup`作为容器。
 
 ```
 LayoutInflater.java
@@ -272,9 +269,9 @@ LayoutInflater.java
     }
 
 ```
-1处表明，`rInflateChildren`函数本质上是调用`rInflate`函数处理，只是区分语境而做了不同命名而已。  
-5-7处解析处理特殊标签，这里不做详细解析，感兴趣的童鞋可以直接read源码。
-2-11处为`rInflate`函数的主要逻辑，也是递归解析的关键所在。写一个递归函数，核心是理解递归的终止及触发条件，举个栗子。
+1处表明，*rInflateChildren*函数本质上是调用*rInflate*函数处理，只是区分语境而做了不同命名而已。  
+5-7处解析处理特殊标签，这里不做详细解析，感兴趣的童鞋可以直接阅读源码。
+2-11处为*rInflate*函数的主要逻辑，也是递归解析的关键所在。写一个递归函数，核心是理解递归的终止及触发条件，举个栗子。
 
 ```
 <?xml version="1.0" encoding="utf-8"?>  <!-- depth=0 -->
@@ -292,7 +289,7 @@ LayoutInflater.java
 </LinearLayout> 		<!-- depth=1 -->
 ```
 针对这个栗子，我只说关键的逻辑说明，在递归子节点树的时候实际上外层已经解析过了，这里只是演示下`XmlPullParser`的大致解析逻辑。  
-1. 第一次调用`rInflate`函数，depth=0，解析第一个`<LinearLayout>`，
+1. 第一次调用*rInflate*函数，depth=0，解析第一个`<LinearLayout>`，
 为`START_TAG`,实例化`LinearLayout`对象L1，触发**第一次递归** 。     
 2. depth=1，解析到第一个`<TextView>`，为`START_TAG`，实例化`TextView`对象，并把自己添加到L1，触发**第二次递归** 。  
 3. depth=2，解析到第一个`</TextView>`，为`END_TAG`不满足while条件，结束**第二次递归** 。  
@@ -302,12 +299,12 @@ LayoutInflater.java
 7. depth=2，解析到`第一个</LinearLayout>`,为`END_TAG`不满足while条件，结束**第三次递归** 。  
 8. depth=1，解析到`第二个</LinearLayout>`,为`END_TAG`不满足while条件，结束**第一次递归** 。
 
-上述的栗子基本走了一遍`rInflate`函数的逻辑。而递归的逻辑可能有点绕，不过理解起来并不困难。相信有心看到这里的童鞋都比较聪明哈。在整个递归过程中，我们又多了一个问题，递归中怎么创建View的呢？没错,，就是9处的`createViewFromTag`,不急，走完这步先小结。
+上述的栗子基本走了一遍*rInflate*函数的逻辑。而递归的逻辑可能有点绕，不过理解起来并不困难。相信有心看到这里的童鞋都比较聪明哈。在整个递归过程中，我们又多了一个问题，递归中怎么创建`View`的呢？没错,，就是9处的*createViewFromTag*,不急，走完这步先小结。
 
-**小结**: *递归解析的流程从XML文件次层开始向内解析节点树，间接调用`rInflate`函数递归检索所有节点并把符合转化为View的节点转化为View对象*
+**小结**: *递归解析的流程从XML文件次层开始向内解析节点树，间接调用*rInflate*函数递归检索所有节点并把符合转化为`View`的节点转化为`View`对象*
 
 ### 反射标签View初现
-继续上一节的逻辑，可以通过`createViewFromTag`的方法的把Tag转化为View。还是相信，代码会帮你解除所有疑惑。
+继续上一节的逻辑，可以通过*createViewFromTag*的方法的把`Tag`转化为`View`。还是相信，代码会帮你解除所有疑惑。
 
 ```
 LayoutInflater.java
@@ -315,7 +312,7 @@ LayoutInflater.java
 	 //...
      final View view = createViewFromTag(parent, name, context, attrs);
 ```
-`name`即获取当前节点的名称，比如`<TextView>`获取的是`TextView`
+name即获取当前节点的名称，比如`<TextView>`获取的是`TextView`
 
 ```
 	//1. 默认是ignoreThemeAttr为false
@@ -395,9 +392,9 @@ LayoutInflater.java
 
 ```
 上述代码的逻辑大致是：  
-1. name转化。如果name是View，则需要转化为对应class属性的值；  
-2. name转成view。如果name是blink，则直接构建BlinkLayout并返回，否则先让工厂生成，如果工厂都生成不了，则使用默认生成。  
-既然`mFactory`，`mFactory2`，`mPrivateFactory`是优先构建`View`对象，所以有必要了解这些是什么。
+1. name转化。如果name是`View`，则需要转化为对应*class*属性的值；  
+2. name转成`View`。如果name是*blink*，则直接构建`BlinkLayout`并返回，否则先让工厂生成，如果工厂都生成不了，则使用默认生成。  
+既然*mFactory*，*mFactory2*，*mPrivateFactory*是优先构建`View`对象，所以有必要了解这些是什么。
 
 ```
 LayoutInflater.java
@@ -422,7 +419,7 @@ LayoutInflater.java
     }
 
 ```
-实际上只是一个暴露构建View方法的接口，而接口对象赋值是在构造器内和`set`方法中。`LayoutInflater`是一个抽象类，所以先检查其实现类。  
+实际上只是一个暴露构建`View`方法的接口，而接口对象赋值是在构造器内和*set*方法中。`LayoutInflater`是一个抽象类，所以先检查其实现类。  
 通过源码的引用检索，可以发现，实现继承`LayoutInflater`的类一共有两个个
 
 ```
@@ -460,7 +457,7 @@ PhoneLayoutInflater.java
             return result;
         }
 ```
-既然实现类没有处理`Factory`，只能看`setFactory`和`setFactory2`方法
+既然实现类没有处理`Factory`，只能看*setFactory*和*setFactory2*方法
 
 ```
 LayoutInflater.java
@@ -556,16 +553,18 @@ LayoutInflater.java
     }
 
 ```
-上述的注释非常重要，factory工厂不能为空且只能设置一次。从1-4处也可知两个`set`方法的调用是互斥的。如果开发者希望设置自定义的工厂，则需要从原来的`LayoutInflater`中复制一个对象，然后调用`setFactory`或者`setFactory2`方法设置解析工厂。另外`setPrivateFactory`是系统底层调用的，所以不开放对外设置。
-那么`setFactory`或者`setFactory2`在android中如何设置的呢？通过AS的检索功能，显示如图，这些类可在v4包中查阅到。
+上述的注释非常重要，`Factory`工厂不能为空且只能设置一次。从1-4处也可知两个*set*方法的调用是互斥的。如果开发者希望设置自定义的工厂，则需要从原来的`LayoutInflater`中复制一个对象，然后调用*setFactory*或者*setFactory2*方法设置解析工厂。另外*setPrivateFactory*是系统底层调用的，所以不开放对外设置。
+那么*setFactory*或者*setFactory2*在android中如何设置的呢？通过AS的检索功能，显示如图，这些类可在v4包中查阅到。
 
-1. setFactory的调用来自于`BaseFragmentActivityGingerbread.java`和`LayoutInflaterCompatBase.java`。  
-1-1. 其中`BaseFragmentActivityGingerbread.java`处理低于3.0版本的`activity`版本都需要设置解析fragmen标签  
-1-2. 对于`LayoutInflaterCompatBase.java`，则暴露`FactoryWrapper`分装类，根据不同的版本实现不同的LayoutInflaterFactory。常规的业务比如换肤，即可在这里实现自己的Factory达到View换肤效果。
-2. `setFactory2`的调用来自于`LayoutInflaterCompatHC.java`和`LayoutInflaterCompatLollipop`!因此我们有理由相信，HC版本(3.0)和Loolopop版本(5.0)必定需要兼容解析一些布局，哪些呢？2333，自己想想。
-2-1. 其中`LayoutInflaterCompatHC.java`实际上内部实现了一个静态的`FactoryWrapperHC`类，该类继承1-2中的`FactoryWrapper`类，用来提供HC版本的Factory而已。对于`LayoutInflaterCompatLollipop`，基本逻辑也是如此。
+![setFactory](https://raw.githubusercontent.com/YummyLau/hexo/master/source/pics/20180130/setFactory.png)
+*setFactory*的调用来自于`BaseFragmentActivityGingerbread.java`和`LayoutInflaterCompatBase.java`。    
+* `BaseFragmentActivityGingerbread.java`处理低于3.0版本的*activity*版本都需要设置解析*fragmen*标签  
+* `LayoutInflaterCompatBase.java`，则暴露`FactoryWrapper`分装类，根据不同的版本实现不同的`LayoutInflaterFactory`。常规的业务比如换肤，即可在这里实现自己的`Factory`达到`View`换肤效果。
 
-花了挺长的篇幅讲了`Factory`相关的逻辑。到这里，大致能明白，实际上`Factory`大致就是一种拦截思想。优先通过选择自定义Factory来构建View对象。那么如果这些Factory都没有的话，则需要走默认逻辑，即`LayoutInflater#createView`
+![setFactory2](https://raw.githubusercontent.com/YummyLau/hexo/master/source/pics/20180130/setFactory2.png)
+*setFactory2*的调用来自于`LayoutInflaterCompatHC.java`和`LayoutInflaterCompatLollipop`!因此我们有理由相信，HC版本(3.0)和Loolopop版本(5.0)必定需要兼容解析一些布局，哪些呢？2333，自己想想。其中`LayoutInflaterCompatHC.java`实际上内部实现了一个静态的`FactoryWrapperHC`类，该类继承1-2中的`FactoryWrapper`类，用来提供HC版本的`Factory`而已。对于`LayoutInflaterCompatLollipop`，基本逻辑也是如此。
+
+花了挺长的篇幅讲了`Factory`相关的逻辑。到这里，大致能明白，实际上`Factory`大致就是一种拦截思想。优先通过选择自定义`Factory`来构建`View`对象。那么如果这些`Factory`都没有的话，则需要走默认逻辑，即`LayoutInflater#createView`
 
 ```
    /**
@@ -660,7 +659,7 @@ LayoutInflater.java
     }
 ```
 上述代码可知，`LayoutInflater`内存缓存了构造器，过滤部分tag后通过类名反射View对象。
-其中4处给我们的启示是，实际上系统`PhoneLayoutInflater`只是扩展了类名的路径，让LayoutInflater识别更多的类而已。如果正真想要处理View定制样式，还是需要自定义`LayoutInflater.Factory2`。
+其中4处给我们的启示是，实际上系统`PhoneLayoutInflater`只是扩展了类名的路径，让`LayoutInflater`识别更多的类而已。如果正真想要处理View定制样式，还是需要自定义`LayoutInflater.Factory2`。
 
 **小结**: *递归XML文件得到的标签名来转化成View的优先级为：mFactory2 > mFactory > mPrivateFactory > onCreateView。凭接全限定类名并经过剔除筛选后反射得到View对象。*
 
