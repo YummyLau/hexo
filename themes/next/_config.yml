@@ -415,7 +415,7 @@ gitment:
   cleanly: false # Hide 'Powered by ...' on footer, and more
   language: # Force language, or auto switch by theme
   github_user: YummyLau
-  github_repo: gitment-comments
+  github_repo: yummylau.github.io
   client_id: 28e609f26193c030b068
   client_secret: 6fe337b055b804a83be6b90892bbdcd30af1c3ca
   proxy_gateway: # Address of api proxy, See: https://github.com/aimingoo/intersect
