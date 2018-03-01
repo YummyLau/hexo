@@ -13,8 +13,6 @@ description: 好记性不如烂笔头
 author: yummyLau
 # 使用语言
 language: zh-Hans
-# 使用多说，自添加
-duoshuo_shortname: yummylau
 # 头像
 avatar: /uploads/avatar.jpg
 # 站点创建时间
