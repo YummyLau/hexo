@@ -4,9 +4,9 @@
 
 # Site
 # 网站标题
-title: 为知
+title: 编程在做，阅读在右
 # 网站副标题
-subtitle: 勇敢追求
+subtitle: Keep moving！
 # 网站描述
 description: 有些东西需要记下来，怕忘记
 # 作者名称
@@ -120,5 +120,5 @@ theme: next
 ## Docs: https://hexo.io/docs/deployment.html
 deploy:
   type: git
-  repository: https://github.com/YummyLau/yummylau.github.io.git
+  repository: ssh://git@github.com/YummyLau/yummylau.github.io.git
   branch: master 
