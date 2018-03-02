@@ -1,5 +1,5 @@
 ---
-title: hexo实现多端写bolg问题记录
+title: Hexo实现多端写blog问题记录
 date: 2016-12-20 12:04:11
 updated: 2017-07-22 14:22
 comments: true

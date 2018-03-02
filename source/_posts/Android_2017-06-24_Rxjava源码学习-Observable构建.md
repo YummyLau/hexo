@@ -1,8 +1,8 @@
 ---
 title: Rxjava源码分析－一次完成的事件消费过程
 date: 2017-06-24 14:23:58
-categories: Rxjava
-tags: [rxjava,Observable]
+categories: Android
+tags: [RxJava]
 ---
 <!--more-->
 > 公司在项目上用Rxjava大概也有几个月了，从之前学习Rxjava到应用，虽然能自如使用Api，但细节原理性掌握并不好。因此写下学习源码的过程，好记性不如烂笔头，慢慢学习和积累。

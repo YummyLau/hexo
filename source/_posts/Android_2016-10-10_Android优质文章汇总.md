@@ -4,7 +4,7 @@ layout: post
 date: 2016-10-10
 comments: true
 categories: Android
-tags: [优质文章]
+tags: [Android经验]
 ---
 <!--more-->
 # 数据处理
