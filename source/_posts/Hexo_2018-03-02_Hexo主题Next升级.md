@@ -4,7 +4,7 @@ layout: post
 date: 2018-03-02 10:31
 comments: true
 categories: Hexo
-tags: [主题升级]
+tags: [Hexo,next主题升级]
 ---
 ### 同步主仓库
 Github上Hexo仓库地址
