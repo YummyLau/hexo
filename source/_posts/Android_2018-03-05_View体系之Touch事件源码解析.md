@@ -431,5 +431,33 @@ ViewGroup.java
 ```
 上述逻辑表明有三种场景下会返回 `true` 结果。  
 两种场景为：第一种是拖拽场景，比如listview等控件存在这种逻辑；另一种是开发者设置了 OnTouchListener 对象并在 `onTouch` 函数中处理并返回 `true` 结果。  
-最后一种场景为普遍场景，及如果没有上述两种场景且是当前是最外层 `view` 时（事件已经无法再传递），则会调用自身的 `onTouch` 方法处理。 
+最后一种场景为普遍场景，及如果没有上述两种场景且是当前是最外层 `view` 时（事件已经无法再传递），则会调用自身的 `onTouch` 方法处理。
+
 *总结*：`view#dispatchTouchEvent` 会在事件下发链末端调用，并把当前 `view` 的 `onTouch` 返回值作为 `dispatchTouchEvent` 返回值。
+
+### 回看拦截之onInterceptTouchEvent
+上述篇章的下发逻辑都需要判断 Touch 事件是否需要被拦截，先看看代码。
+
+```
+    public boolean onInterceptTouchEvent(MotionEvent ev) {
+		//判断是否是鼠标事件且是滚轮滑动
+        if (ev.isFromSource(InputDevice.SOURCE_MOUSE)
+                && ev.getAction() == MotionEvent.ACTION_DOWN
+                && ev.isButtonPressed(MotionEvent.BUTTON_PRIMARY)
+                && isOnScrollbarThumb(ev.getX(), ev.getY())) {
+            return true;
+        }
+        return false;
+    }
+```
+上面的代码在绝大部分情况下都返回 `false` 。除非你鼠标事件且在上面滚动，这个场景很像你在滚动网页一样，那么当前的页面就会拦截滚动事件进行页面滚动。  
+>值得注意的是：如果你在该方法返回 `true` 进行拦截，那么你会走下面的调用逻辑  
+> 1. viewGroup#dispatchTouchEvent    
+> 2. viewGroup#dispatchTransformedTouchEvent  
+> 3. view#dispatchTouchEvent  
+> 4. view#onTouchEvent
+
+*总结*：`viewGroup#onInterceptTouchEvent` 是 ViewGroup 特有的方法。默认情况下 ViewGroup 不会拦截 Touch 事件，如果拦截了 Touch 事件，则会交给 `View#onTouch` 进行处理。
+
+### 最后的归宿 onTouchEvent
+

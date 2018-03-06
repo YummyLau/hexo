@@ -9,13 +9,13 @@ tags: [Android View体系,源码解析]
 
 ### 技术背景
 >从 View 体系中认识 Touch 事件传递，暂时留一条线索：  
->＂　View 最原始的事件从哪里来？　”  
->从 WindowCallbacKWrapper开始的。  
->那么，我们开始吧！
+>“　View 最原始的事件从哪里来？”    
+>“　从 WindowCallbacKWrapper开始的。”  　　　　
+>不要问我怎么知道呀，看到整个系列你自然会明白呀。
 
 *tip*：阅读源码前，建议读懂 [Android View体系之基础常识及技巧](xxxxx)。
 
-### 始于　Activity # dispatchTouchEvent
+### 始于 Activity 分发
 从 `window` 层开始下发事件后， `Activity` 开始处理事件，会调用 `ViewGroup#dispatchTouchEvent`  
 
 ```
@@ -54,7 +54,7 @@ ViewGroup.java
 
 *总结*：`Activity` 下发 `Touch` 事件到 `DecorView` 并由 `DecorView` 开始向下传递。
 
-### 深入 ViewGroup # dispatchTouchEvent
+### ViewGroup之事件分发
 `DecorView` 调用 `dispatchTouchEvent` 分发 `Touch` 事件。代码很长，可是不难，逻辑比较清晰。
 
 ```
@@ -81,7 +81,7 @@ ViewGroup.java
                 resetTouchState();
             }
 
-           	// 3. 判断事件是否需要拦截 - intercepted 
+			// 3. 判断事件是否需要拦截 - intercepted 
 			// 判断是否运行不允许拦截
 			// 如果允许拦截，则通过 onInterceptTouchEvent 方法返回
             final boolean intercepted;
@@ -99,7 +99,7 @@ ViewGroup.java
                 intercepted = true;
             }
 
-            // 4. 判断事件是否取消事件 - canceled 
+			// 4. 判断事件是否取消事件 - canceled 
 			// 如果 view.mPrivateFlags 被设置 FLAG_CANCEL_NEXT_UP_EVENT，则该 view 已经脱离视图
 			// 置 view.mPrivateFlags 标志
 			// 如果 当前标志为 FLAG_CANCEL_NEXT_UP_EVENT 或者 接收 MotionEvent.ACTION_CANCEL 事件，返回 true
@@ -310,7 +310,7 @@ ViewGroup.java
 `注释14` 实际上是返回以 viewGroup 为根节点的 view 下是否有节点消费事件。　　
 
 
-### 递归于 ViewGroup # dispatchTransformedTouchEvent
+### ViewGroup之递归入口
 在上一章节，`dispatchTouchEvent`　多次调用　`dispatchTransformedTouchEvent`，这里做下简单分析。
 
 ```
@@ -386,7 +386,7 @@ ViewGroup.java
 ```
 *总结*：`dispatchTransformedTouchEvent`　会对非 `MotionEvent.ACTION_CANCEL` 事件做转化并递归返回所有事件的下发结果。
 
-### view # dispatchTouchEvent做了些什么？
+### View来下发为哪般？
 既然不是 `view`，那么 `dispatchTouchEvent` 应该不是属于下发范畴的，那会是什么呢？
 
 ```
@@ -431,5 +431,6 @@ ViewGroup.java
 ```
 上述逻辑表明有三种场景下会返回 `true` 结果。  
 两种场景为：第一种是拖拽场景，比如listview等控件存在这种逻辑；另一种是开发者设置了 OnTouchListener 对象并在 `onTouch` 函数中处理并返回 `true` 结果。  
-最后一种场景为普遍场景，及如果没有上述两种场景且是当前是最外层 `view` 时（事件已经无法再传递），则会调用自身的 `onTouch` 方法处理。 
+最后一种场景为普遍场景，及如果没有上述两种场景且是当前是最外层 `view` 时（事件已经无法再传递），则会调用自身的 `onTouch` 方法处理。
+
 *总结*：`view#dispatchTouchEvent` 会在事件下发链末端调用，并把当前 `view` 的 `onTouch` 返回值作为 `dispatchTouchEvent` 返回值。
