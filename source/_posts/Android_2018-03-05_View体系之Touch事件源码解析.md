@@ -737,3 +737,21 @@ public boolean onTouchEvent(MotionEvent event) {
 ### 案例说明
 GitHub链接上有本次 [Touch传递测试代码](https://github.com/YummyLau/SourceTestSample/tree/master/app/src/main/java/yummylau/sourcetest/touch)
 
+测试案例两个 `viewGroup` 和 一个 `view`
+
+![layoutshow](https://raw.githubusercontent.com/YummyLau/hexo/master/source/pics/20180307/IMG20180307_143800.png)
+
+* 场景一：`View3#onTouchEvent` 返回 `true` 消费所有 Touch 事件
+
+![sence1](https://raw.githubusercontent.com/YummyLau/hexo/master/source/pics/20180307/IMG20180307_144011.png)
+
+
+* 场景二：`View3#onTouchEvent` 返回 `false` 不消费 Touch 事件，`Linearlayout2` 返回 `true` 消费所有 Touch 事件
+
+![sence2](https://raw.githubusercontent.com/YummyLau/hexo/master/source/pics/20180307/IMG20180307_144230.png)
+
+* 场景三：`Linearlayout2#onInterceptTouchEvent` 返回 `true` 拦截 Touch 事件，但是 `Linearlayout2#onTouchEvent` 返回 `false` 不消费事件
+
+* 场景四：`Linearlayout2#onInterceptTouchEvent` 返回 `true` 拦截 Touch 事件，但是 `Linearlayout2#onTouchEvent` 返回 `true` 消费事件
+
+
