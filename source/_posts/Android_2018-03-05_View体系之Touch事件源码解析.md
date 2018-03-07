@@ -15,7 +15,7 @@ tags: [Android View体系,源码解析]
 
 *tip*：阅读源码前，建议读懂 [Android View体系之基础常识及技巧](xxxxx)。
 
-### 始于　Activity # dispatchTouchEvent
+### 千里之行，始于Activity
 从 `window` 层开始下发事件后， `Activity` 开始处理事件，会调用 `ViewGroup#dispatchTouchEvent`  
 
 ```
@@ -54,7 +54,7 @@ ViewGroup.java
 
 *总结*：`Activity` 下发 `Touch` 事件到 `DecorView` 并由 `DecorView` 开始向下传递。
 
-### 深入 ViewGroup # dispatchTouchEvent
+### 下发核心 ViewGroup#dispatchTouchEvent
 `DecorView` 调用 `dispatchTouchEvent` 分发 `Touch` 事件。代码很长，可是不难，逻辑比较清晰。
 
 ```
@@ -451,7 +451,7 @@ ViewGroup.java
     }
 ```
 上面的代码在绝大部分情况下都返回 `false` 。除非你鼠标事件且在上面滚动，这个场景很像你在滚动网页一样，那么当前的页面就会拦截滚动事件进行页面滚动。  
->值得注意的是：如果你在该方法返回 `true` 进行拦截，那么你会走下面的调用逻辑  
+>值得注意的是：如果你在该方法返回 `true` 进行拦截，那么你会走下面的调用逻辑    
 > 1. viewGroup#dispatchTouchEvent    
 > 2. viewGroup#dispatchTransformedTouchEvent  
 > 3. view#dispatchTouchEvent  
@@ -460,4 +460,280 @@ ViewGroup.java
 *总结*：`viewGroup#onInterceptTouchEvent` 是 ViewGroup 特有的方法。默认情况下 ViewGroup 不会拦截 Touch 事件，如果拦截了 Touch 事件，则会交给 `View#onTouch` 进行处理。
 
 ### 最后的归宿 onTouchEvent
+这个方法是处理 Touch 事件，并返回结果给 `dispatchTouchEvent` 的。可以理解为：它决定了某个 `view` 是否真正消费 Touch 事件。直接看源码。
+
+```
+public boolean onTouchEvent(MotionEvent event) {
+        final float x = event.getX();
+        final float y = event.getY();
+        final int viewFlags = mViewFlags;
+        final int action = event.getAction();
+
+        final boolean clickable = ((viewFlags & CLICKABLE) == CLICKABLE
+                || (viewFlags & LONG_CLICKABLE) == LONG_CLICKABLE)
+                || (viewFlags & CONTEXT_CLICKABLE) == CONTEXT_CLICKABLE;
+
+		// 1. 判断是否是 DISABLED 的 view
+		// 如果是，且已经按下之后抬起，则会消费掉 Touch 事件
+        if ((viewFlags & ENABLED_MASK) == DISABLED) {
+            if (action == MotionEvent.ACTION_UP && (mPrivateFlags & PFLAG_PRESSED) != 0) {
+                setPressed(false);
+            }
+            mPrivateFlags3 &= ~PFLAG3_FINGER_DOWN;
+            return clickable;
+        }
+
+		//2. 如果设置了 mTouchDelegate，则会直接返回 true
+        if (mTouchDelegate != null) {
+            if (mTouchDelegate.onTouchEvent(event)) {
+                return true;
+            }
+        }
+
+		//3. 如果可点击或者显示了 toolTip，则会开始判断处理 Touch 事件
+        if (clickable || (viewFlags & TOOLTIP) == TOOLTIP) {
+            switch (action) {
+
+				//4. 处理 MotionEvent.ACTION_UP
+                case MotionEvent.ACTION_UP:
+                    mPrivateFlags3 &= ~PFLAG3_FINGER_DOWN;
+                    if ((viewFlags & TOOLTIP) == TOOLTIP) {
+                        handleTooltipUp();
+                    }
+
+					// 5. 显示 toolTip 时清空对应状态，返回 true
+                    if (!clickable) {
+                        removeTapCallback();
+                        removeLongPressCallback();
+                        mInContextButtonPress = false;
+                        mHasPerformedLongPress = false;
+                        mIgnoreNextUpEvent = false;
+                        break;
+                    }
+                    boolean prepressed = (mPrivateFlags & PFLAG_PREPRESSED) != 0;
+                    if ((mPrivateFlags & PFLAG_PRESSED) != 0 || prepressed) {
+           
+                        boolean focusTaken = false;
+                        if (isFocusable() && isFocusableInTouchMode() && !isFocused()) {
+                            focusTaken = requestFocus();
+                        }
+
+						// 确保用户看到已按压状态
+                        if (prepressed) {
+                            setPressed(true, x, y);
+                        }
+
+						// 6. 如果调用长按行为或者且不忽略下一次事件（触笔）
+						// 移出长按回调
+						// 如果我们在按压状态下，则 post PerformClick 对象（runnable）
+						// 值得一提的是，PerformClick 对象的 run 方法实际上也是调用
+						// performClick 方法，该方法调用 view 的 onClickListener#onClick 方法
+                        if (!mHasPerformedLongPress && !mIgnoreNextUpEvent) {
+              
+                            removeLongPressCallback();
+                            if (!focusTaken) {
+                              
+                                if (mPerformClick == null) {
+                                    mPerformClick = new PerformClick();
+                                }
+                                if (!post(mPerformClick)) {
+                                    performClick();
+                                }
+                            }
+                        }
+
+						// 设置非按压状态
+                        if (mUnsetPressedState == null) {
+                            mUnsetPressedState = new UnsetPressedState();
+                        }
+
+                        if (prepressed) {
+                            postDelayed(mUnsetPressedState,
+                                    ViewConfiguration.getPressedStateDuration());
+                        } else if (!post(mUnsetPressedState)) {
+                            mUnsetPressedState.run();
+                        }
+
+                        removeTapCallback();
+                    }
+                    mIgnoreNextUpEvent = false;
+                    break;
+
+				// 7. 处理 MotionEvent.ACTION_DOWN 事件
+                case MotionEvent.ACTION_DOWN:
+                    if (event.getSource() == InputDevice.SOURCE_TOUCHSCREEN) {
+                        mPrivateFlags3 |= PFLAG3_FINGER_DOWN;
+                    }
+                    mHasPerformedLongPress = false;
+
+					// 8. 如果不可点击，则检测是否可以长按
+					// 如果可以，则发送一个延迟 500 ms 的长按事件
+                    if (!clickable) {
+                        checkForLongClick(0, x, y);
+                        break;
+                    }
+
+					// 9. 检测是否触发是鼠标右键类行为，如果是则直接跳过
+                    if (performButtonActionOnTouchDown(event)) {
+                        break;
+                    }
+
+					// 10. 是否在可滑动的容器中
+					// 该方法会递归查询每一个 viewGroup 容器是是否会支持当用户尝试滑动
+					// 内容时阻止pressed state的出现，该 pressed state 会被延迟反馈
+                    boolean isInScrollingContainer = isInScrollingContainer();
+
+                    if (isInScrollingContainer) {
+                        mPrivateFlags |= PFLAG_PREPRESSED;
+                        if (mPendingCheckForTap == null) {
+                            mPendingCheckForTap = new CheckForTap();
+                        }
+                        mPendingCheckForTap.x = event.getX();
+                        mPendingCheckForTap.y = event.getY();
+                        postDelayed(mPendingCheckForTap, ViewConfiguration.getTapTimeout());
+                    } else {
+						//设置按压状态，检测长按
+                        setPressed(true, x, y);
+                        checkForLongClick(0, x, y);
+                    }
+                    break;
+
+				// 11.处理 MotionEvent.ACTION_CANCEL 事件
+				// 设置非按压状态，清空tap和长按回调，重置状态
+                case MotionEvent.ACTION_CANCEL:
+                    if (clickable) {
+                        setPressed(false);
+                    }
+                    removeTapCallback();
+                    removeLongPressCallback();
+                    mInContextButtonPress = false;
+                    mHasPerformedLongPress = false;
+                    mIgnoreNextUpEvent = false;
+                    mPrivateFlags3 &= ~PFLAG3_FINGER_DOWN;
+                    break;
+
+				// 12. 处理 MotionEvent.ACTION_MOVE
+                case MotionEvent.ACTION_MOVE:
+
+					// 如果可以点击，则需要处理 Hotspot
+					// 这个效果是在5.0以后出现，主要是处理 RippleDrawable 的效果
+                    if (clickable) {
+                        drawableHotspotChanged(x, y);
+                    }
+
+                    // 如果移出了 view 的范围，则需要重置状态
+                    if (!pointInView(x, y, mTouchSlop)) {
+                        removeTapCallback();
+                        removeLongPressCallback();
+                        if ((mPrivateFlags & PFLAG_PRESSED) != 0) {
+                            setPressed(false);
+                        }
+                        mPrivateFlags3 &= ~PFLAG3_FINGER_DOWN;
+                    }
+                    break;
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+``` 
+
+上述代码中，有两处 callback 的逻辑你可能还没有完全明白，一个是 TapCallback，一个是 LongPressCallback，分别对应 `mPendingCheckForTap` 和 `mPendingCheckForLongPress`，看下完整的代码。
+
+```
+	// 代码段1，类 CheckForTap  
+	// run 内实际上是调用 代码段5
+    private final class CheckForTap implements Runnable {
+        public float x;
+        public float y;
+
+        @Override
+        public void run() {
+            mPrivateFlags &= ~PFLAG_PREPRESSED;
+            setPressed(true, x, y);
+            checkForLongClick(ViewConfiguration.getTapTimeout(), x, y);
+        }
+    }
+
+	// 代码段2，延迟发送 mPendingCheckForTap 
+	// ViewConfiguration.getTapTimeout() == 100 ms
+    if (mPendingCheckForTap == null) {
+        mPendingCheckForTap = new CheckForTap();
+    }
+    mPendingCheckForTap.x = event.getX();
+    mPendingCheckForTap.y = event.getY();
+    postDelayed(mPendingCheckForTap, ViewConfiguration.getTapTimeout());
+
+	// 代码段3，移出 mPendingCheckForTap 对象
+    private void removeTapCallback() {
+        if (mPendingCheckForTap != null) {
+            mPrivateFlags &= ~PFLAG_PREPRESSED;
+            removeCallbacks(mPendingCheckForTap);
+        }
+    }
+
+	// 代码段4，类 CheckForLongPress 
+	// run 内会判断状态并简介调用 view.OnLongClickListener#onLongClick
+    private final class CheckForLongPress implements Runnable {
+        private int mOriginalWindowAttachCount;
+        private float mX;
+        private float mY;
+        private boolean mOriginalPressedState;
+
+        @Override
+        public void run() {
+            if ((mOriginalPressedState == isPressed()) && (mParent != null)
+                    && mOriginalWindowAttachCount == mWindowAttachCount) {
+                if (performLongClick(mX, mY)) {
+                    mHasPerformedLongPress = true;
+                }
+            }
+        }
+		//...
+    }
+
+	// 代码段5，延迟检测发送处理长按行为
+	// ViewConfiguration.getLongPressTimeout() == 500 ms
+    private void checkForLongClick(int delayOffset, float x, float y) {
+        if ((mViewFlags & LONG_CLICKABLE) == LONG_CLICKABLE || (mViewFlags & TOOLTIP) == TOOLTIP) {
+            mHasPerformedLongPress = false;
+
+            if (mPendingCheckForLongPress == null) {
+                mPendingCheckForLongPress = new CheckForLongPress();
+            }
+            mPendingCheckForLongPress.setAnchor(x, y);
+            mPendingCheckForLongPress.rememberWindowAttachCount();
+            mPendingCheckForLongPress.rememberPressedState();
+            postDelayed(mPendingCheckForLongPress,
+                    ViewConfiguration.getLongPressTimeout() - delayOffset);
+        }
+    }
+
+	// 代码段6，移出 mPendingCheckForTap 对象
+    private void removeLongPressCallback() {
+        if (mPendingCheckForLongPress != null) {
+            removeCallbacks(mPendingCheckForLongPress);
+        }
+    }
+```
+
+`代码段1` 会调用 `代码段5`，实际上也是延迟发送 “处理长按行为”。和直接调用 `代码5` 不同，`代码5` 中延迟 `500-delayOffset` ms 执行 “处理长按行为”，而源码的调用基本都是默认 `delayOffset = 0` 。代码1 则以 `delayOffset = 100 ` 先延迟 100 ms之后延迟 400 ms 发送处理长按行为，同样需要 500 ms 才会支持 “处理长按行为”。那到底为啥要这么做呢？  
+原因是当前处理的 view 位于可滑动的容器内需要延迟处理接收的按压事件。这样讲有点抽象，你可以这样理解，android 把 `MotionEvent.ACTION_DOWN` 场景区分为 `滑动（scroll）` 和 `轻敲（tap）`，用延迟的时间来判断手势已经发生了位移。如果发生了位移，则还依然需要保持判断有效长按时间（500 ms）不变，所以会追加 400 ms延迟来 post 一个 “处理长按行为” 任务。
+
+上述6个代码段用于加深理解 `onTouchEvent` 内事件的处理而已。从上上段代码上看，我们总结下整个流程: 
+ 
+* 如果 `view` 不可用则根据是否可点击来直接消费 `MotionEvent.ACTION_UP`  
+* 如果 `view` 设置了 `mTouchDelegate`，则默认消费 Touch 事件
+* 如果 `view` 可点击或者在 tooltip 显示状态下默认消费事件,否则返回 false 给 `dispatchTouchEvent`。 
+	* `MotionEvent.ACTION_UP ` 分支会设置按压状态，触发点击或长按事件，最后重置状态　　
+	* `MotionEvent.ACTION_DOWN ` 分支延迟发送“处理长按行为”　　
+	* `MotionEvent.ACTION_CANCEL ` 分支重置处理 Touch 过程中设置的状态　　
+	* `MotionEvent.ACTION_MOVE ` 分支处理滑动 RippleDrawable 效果并在手势滑出 View 范围情况下重置状态
+
+*总结*： `onTouchEvent` 是真正完成对 Touch 事件的处理，并把处理结果作为`dispatchTouchEvent` 的递归结果。
+
+### 案例说明
+GitHub链接上有本次 [Touch传递测试代码](https://github.com/YummyLau/SourceTestSample/tree/master/app/src/main/java/yummylau/sourcetest/touch)
 
