@@ -61,11 +61,11 @@ ViewGroup.java
     @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
 
-			//默认部分下发 Touch 事件
+		//默认部分下发 Touch 事件
         boolean handled = false;
 
-			// 1. 检测是否分发Touch事件（判断窗口是否被遮挡住）
-			// 如果该 Touch 事件没有被窗口遮挡，则继续下面逻辑
+		// 1. 检测是否分发Touch事件（判断窗口是否被遮挡住）
+		// 如果该 Touch 事件没有被窗口遮挡，则继续下面逻辑
         if (onFilterTouchEventForSecurity(ev)) {
 
 			// 获取 Touch Action
@@ -81,7 +81,7 @@ ViewGroup.java
                 resetTouchState();
             }
 
-          // 3. 判断事件是否需要拦截 - intercepted 
+          	// 3. 判断事件是否需要拦截 - intercepted 
 			// 判断是否运行不允许拦截
 			// 如果允许拦截，则通过 onInterceptTouchEvent 方法返回
             final boolean intercepted;
@@ -99,7 +99,7 @@ ViewGroup.java
                 intercepted = true;
             }
 
-          // 4. 判断事件是否取消事件 - canceled 
+          	// 4. 判断事件是否取消事件 - canceled 
 			// 如果 view.mPrivateFlags 被设置 FLAG_CANCEL_NEXT_UP_EVENT，则该 view 已经脱离视图
 			// 置 view.mPrivateFlags 标志
 			// 如果 当前标志为 FLAG_CANCEL_NEXT_UP_EVENT 或者 接收 MotionEvent.ACTION_CANCEL 事件，返回 true
@@ -128,7 +128,7 @@ ViewGroup.java
                     final int idBitsToAssign = split ? 1 << ev.getPointerId(actionIndex)
                             : TouchTarget.ALL_POINTER_IDS;
 
-				//清除当前手指触摸的target引用
+					//清除当前手指触摸的target引用
                     removePointersFromTouchTargets(idBitsToAssign);
 	
                     final int childrenCount = mChildrenCount;
@@ -137,8 +137,8 @@ ViewGroup.java
                         final float x = ev.getX(actionIndex);
                         final float y = ev.getY(actionIndex);
                  		
-					// 7. 扫描可传递的子 View 列表，按照Z轴坐标大小排序返回列表 preorderedList 
-					// 遍历子 view 列表并结合 preorderedList  找出符合绘制条件的 view
+						// 7. 扫描可传递的子 View 列表，按照Z轴坐标大小排序返回列表 preorderedList 
+						// 遍历子 view 列表并结合 preorderedList  找出符合绘制条件的 view
                         final ArrayList<View> preorderedList = buildTouchDispatchChildList();
                         final boolean customOrder = preorderedList == null
                                 && isChildrenDrawingOrderEnabled();
@@ -159,31 +159,31 @@ ViewGroup.java
                                 i = childrenCount - 1;
                             }
 
-					// 8. 判断子 view 是否不可见或者不在子 view 的范围内
-					// 如果满足，则跳过
+							// 8. 判断子 view 是否不可见或者不在子 view 的范围内
+							// 如果满足，则跳过
                             if (!canViewReceivePointerEvents(child)
                                     || !isTransformedTouchPointInView(x, y, child, null)) {
                                 ev.setTargetAccessibilityFocus(false);
                                 continue;
                             }
 
-					// 9. 遍历 target 链表，找到当前 child 对应的 target
-					// 如果存在，则把手指的触摸 id 赋值 pointerIdBits 遍历
-					// 这个比较难理解，举个栗子。
-					// 假如我食指按在一个 view(A) 上，然后中指在食指未起来之前又按在 view(A)
-					// 上，则会把后者的 idBitsToAssign 更新到指向view(A) 的 newTouchTarget 对象上
+							// 9. 遍历 target 链表，找到当前 child 对应的 target
+							// 如果存在，则把手指的触摸 id 赋值 pointerIdBits 遍历
+							// 这个比较难理解，举个栗子。
+							// 假如我食指按在一个 view(A) 上，然后中指在食指未起来之前又按在 view(A)
+							// 上，则会把后者的 idBitsToAssign 更新到指向view(A) 的 newTouchTarget 对象上
                             newTouchTarget = getTouchTarget(child);
                             if (newTouchTarget != null) {
                                 newTouchTarget.pointerIdBits |= idBitsToAssign;
                                 break;
                             }
 
-					// 清除子 view.mPrivateFlags PFLAG_CANCEL_NEXT_UP_EVENT 标志
+							// 清除子 view.mPrivateFlags PFLAG_CANCEL_NEXT_UP_EVENT 标志
                             resetCancelNextUpFlag(child);
 
-					// 10. 返回下发 Touch 事件结果。
-					// 如果没有子 view，则返回 view#dispatchTouchEvent 结果，实际上这里会发生递归。
-					// 如果子 view 消费了 Touch 事件，则会添加到 target 链接
+							// 10. 返回下发 Touch 事件结果。
+							// 如果没有子 view，则返回 view#dispatchTouchEvent 结果，实际上这里会发生递归。
+							// 如果子 view 消费了 Touch 事件，则会添加到 target 链接
                             if (dispatchTransformedTouchEvent(ev, false, child, idBitsToAssign)) {
     
                                 mLastTouchDownTime = ev.getDownTime();
@@ -212,11 +212,11 @@ ViewGroup.java
                         if (preorderedList != null) preorderedList.clear();
                     }
 
-				// 11. 如果没有子 view 没有消费 Touch 事件且 mFirstTouchTarget 却不为 null
-				// 这就郁闷了，比较难理解，举个栗子。
-				// 前一个 if 条件是 newTouchTarget == null && childrenCount != 0
-				// 如果我第一根手指按在 viewGroup（A）中 textview（a）
-				// 同时，另一根手指按在除 textview（a）外空白区域（viewGroup（A）内）
+					// 11. 如果没有子 view 没有消费 Touch 事件且 mFirstTouchTarget 却不为 null
+					// 这就郁闷了，比较难理解，举个栗子。
+					// 前一个 if 条件是 newTouchTarget == null && childrenCount != 0
+					// 如果我第一根手指按在 viewGroup（A）中 textview（a）
+					// 同时，另一根手指按在除 textview（a）外空白区域（viewGroup（A）内）
                     if (newTouchTarget == null && mFirstTouchTarget != null) {
                         // Did not find a child to receive the event.
                         // Assign the pointer to the least recently added target.
@@ -317,12 +317,12 @@ ViewGroup.java
     private boolean dispatchTransformedTouchEvent(MotionEvent event, boolean cancel,
             View child, int desiredPointerIdBits) {
 		
-			// 1. 是否下发 Touch 事件
+		// 1. 是否下发 Touch 事件
         final boolean handled;
 
-			// 2. 如果事件传递已经取消 或者当前事件是 ACTION_CANCEL
-			// 如果没有子 view，则返回 view#dispatchTouchEvent 
-			// 如果有子 view，则 返回 child#dispatchTouchEvent
+		// 2. 如果事件传递已经取消 或者当前事件是 ACTION_CANCEL
+		// 如果没有子 view，则返回 view#dispatchTouchEvent 
+		// 如果有子 view，则 返回 child#dispatchTouchEvent
         final int oldAction = event.getAction();
         if (cancel || oldAction == MotionEvent.ACTION_CANCEL) {
             event.setAction(MotionEvent.ACTION_CANCEL);
@@ -365,8 +365,8 @@ ViewGroup.java
         }
 
         // 5. 返回是否传递 Touch 事件
-			// 如果没有子 view，则返回 view#dispatchTouchEvent 
-			// 如果有子 view，则 返回 child#dispatchTouchEvent
+		// 如果没有子 view，则返回 view#dispatchTouchEvent 
+		// 如果有子 view，则 返回 child#dispatchTouchEvent
         if (child == null) {
             handled = super.dispatchTouchEvent(transformedEvent);
         } else {
@@ -402,7 +402,7 @@ ViewGroup.java
             stopNestedScroll();
         }
 
-			// 1.过滤不合法的 Touch 事件
+		// 1.过滤不合法的 Touch 事件
         if (onFilterTouchEventForSecurity(event)) {
 
 			// 2. 如果 view 可用且当前事件被当做拖拽事件处理，返回true
@@ -440,7 +440,7 @@ ViewGroup.java
 
 ```
     public boolean onInterceptTouchEvent(MotionEvent ev) {
-			//判断是否是鼠标事件且是滚轮滑动
+		//判断是否是鼠标事件且是滚轮滑动
         if (ev.isFromSource(InputDevice.SOURCE_MOUSE)
                 && ev.getAction() == MotionEvent.ACTION_DOWN
                 && ev.isButtonPressed(MotionEvent.BUTTON_PRIMARY)
@@ -474,8 +474,8 @@ public boolean onTouchEvent(MotionEvent event) {
                 || (viewFlags & LONG_CLICKABLE) == LONG_CLICKABLE)
                 || (viewFlags & CONTEXT_CLICKABLE) == CONTEXT_CLICKABLE;
 
-	// 1. 判断是否是 DISABLED 的 view
-	// 如果是，且已经按下之后抬起，则会消费掉 Touch 事件
+		// 1. 判断是否是 DISABLED 的 view
+		// 如果是，且已经按下之后抬起，则会消费掉 Touch 事件
         if ((viewFlags & ENABLED_MASK) == DISABLED) {
             if (action == MotionEvent.ACTION_UP && (mPrivateFlags & PFLAG_PRESSED) != 0) {
                 setPressed(false);
@@ -484,25 +484,25 @@ public boolean onTouchEvent(MotionEvent event) {
             return clickable;
         }
 
-	//2. 如果设置了 mTouchDelegate，则会直接返回 true
+		//2. 如果设置了 mTouchDelegate，则会直接返回 true
         if (mTouchDelegate != null) {
             if (mTouchDelegate.onTouchEvent(event)) {
                 return true;
             }
         }
 
-	//3. 如果可点击或者显示了 toolTip，则会开始判断处理 Touch 事件
+		//3. 如果可点击或者显示了 toolTip，则会开始判断处理 Touch 事件
         if (clickable || (viewFlags & TOOLTIP) == TOOLTIP) {
             switch (action) {
 
-		//4. 处理 MotionEvent.ACTION_UP
+				//4. 处理 MotionEvent.ACTION_UP
                 case MotionEvent.ACTION_UP:
                     mPrivateFlags3 &= ~PFLAG3_FINGER_DOWN;
                     if ((viewFlags & TOOLTIP) == TOOLTIP) {
                         handleTooltipUp();
                     }
 
-		// 5. 显示 toolTip 时清空对应状态，返回 true
+					// 5. 显示 toolTip 时清空对应状态，返回 true
                     if (!clickable) {
                         removeTapCallback();
                         removeLongPressCallback();
@@ -519,16 +519,16 @@ public boolean onTouchEvent(MotionEvent event) {
                             focusTaken = requestFocus();
                         }
 
-		// 确保用户看到已按压状态
+						// 确保用户看到已按压状态
                         if (prepressed) {
                             setPressed(true, x, y);
                         }
 
-		// 6. 如果调用长按行为或者且不忽略下一次事件（触笔）
-		// 移出长按回调
-		// 如果我们在按压状态下，则 post PerformClick 对象（runnable）
-		// 值得一提的是，PerformClick 对象的 run 方法实际上也是调用
-		// performClick 方法，该方法调用 view 的 onClickListener#onClick 方法
+						// 6. 如果调用长按行为或者且不忽略下一次事件（触笔）
+						// 移出长按回调
+						// 如果我们在按压状态下，则 post PerformClick 对象（runnable）
+						// 值得一提的是，PerformClick 对象的 run 方法实际上也是调用
+						// performClick 方法，该方法调用 view 的 onClickListener#onClick 方法
                         if (!mHasPerformedLongPress && !mIgnoreNextUpEvent) {
               
                             removeLongPressCallback();
@@ -543,7 +543,7 @@ public boolean onTouchEvent(MotionEvent event) {
                             }
                         }
 
-		// 设置非按压状态
+						// 设置非按压状态
                         if (mUnsetPressedState == null) {
                             mUnsetPressedState = new UnsetPressedState();
                         }
@@ -560,28 +560,28 @@ public boolean onTouchEvent(MotionEvent event) {
                     mIgnoreNextUpEvent = false;
                     break;
 
-		// 7. 处理 MotionEvent.ACTION_DOWN 事件
+				// 7. 处理 MotionEvent.ACTION_DOWN 事件
                 case MotionEvent.ACTION_DOWN:
                     if (event.getSource() == InputDevice.SOURCE_TOUCHSCREEN) {
                         mPrivateFlags3 |= PFLAG3_FINGER_DOWN;
                     }
                     mHasPerformedLongPress = false;
 
-		// 8. 如果不可点击，则检测是否可以长按
-		// 如果可以，则发送一个延迟 500 ms 的长按事件
+					// 8. 如果不可点击，则检测是否可以长按
+					// 如果可以，则发送一个延迟 500 ms 的长按事件
                     if (!clickable) {
                         checkForLongClick(0, x, y);
                         break;
                     }
 
-		// 9. 检测是否触发是鼠标右键类行为，如果是则直接跳过
+					// 9. 检测是否触发是鼠标右键类行为，如果是则直接跳过
                     if (performButtonActionOnTouchDown(event)) {
                         break;
                     }
 
-		// 10. 是否在可滑动的容器中
-		// 该方法会递归查询每一个 viewGroup 容器是是否会支持当用户尝试滑动
-		// 内容时阻止pressed state的出现，该 pressed state 会被延迟反馈
+					// 10. 是否在可滑动的容器中
+					// 该方法会递归查询每一个 viewGroup 容器是是否会支持当用户尝试滑动
+					// 内容时阻止pressed state的出现，该 pressed state 会被延迟反馈
                     boolean isInScrollingContainer = isInScrollingContainer();
 
                     if (isInScrollingContainer) {
@@ -593,14 +593,14 @@ public boolean onTouchEvent(MotionEvent event) {
                         mPendingCheckForTap.y = event.getY();
                         postDelayed(mPendingCheckForTap, ViewConfiguration.getTapTimeout());
                     } else {
-		//设置按压状态，检测长按
+						//设置按压状态，检测长按
                         setPressed(true, x, y);
                         checkForLongClick(0, x, y);
                     }
                     break;
 
-		// 11.处理 MotionEvent.ACTION_CANCEL 事件
-		// 设置非按压状态，清空tap和长按回调，重置状态
+				// 11.处理 MotionEvent.ACTION_CANCEL 事件
+				// 设置非按压状态，清空tap和长按回调，重置状态
                 case MotionEvent.ACTION_CANCEL:
                     if (clickable) {
                         setPressed(false);
@@ -613,7 +613,7 @@ public boolean onTouchEvent(MotionEvent event) {
                     mPrivateFlags3 &= ~PFLAG3_FINGER_DOWN;
                     break;
 
-		// 12. 处理 MotionEvent.ACTION_MOVE
+				// 12. 处理 MotionEvent.ACTION_MOVE
                 case MotionEvent.ACTION_MOVE:
 
 					// 如果可以点击，则需要处理 Hotspot
@@ -622,7 +622,7 @@ public boolean onTouchEvent(MotionEvent event) {
                         drawableHotspotChanged(x, y);
                     }
 
-        // 如果移出了 view 的范围，则需要重置状态
+        			// 如果移出了 view 的范围，则需要重置状态
                     if (!pointInView(x, y, mTouchSlop)) {
                         removeTapCallback();
                         removeLongPressCallback();
