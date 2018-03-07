@@ -752,6 +752,22 @@ GitHub链接上有本次 [Touch传递测试代码](https://github.com/YummyLau/S
 
 * 场景三：`Linearlayout2#onInterceptTouchEvent` 返回 `true` 拦截 Touch 事件，但是 `Linearlayout2#onTouchEvent` 返回 `false` 不消费事件
 
+![sence2](https://raw.githubusercontent.com/YummyLau/hexo/master/source/pics/20180307/IMG20180307_145808.png)
+
 * 场景四：`Linearlayout2#onInterceptTouchEvent` 返回 `true` 拦截 Touch 事件，但是 `Linearlayout2#onTouchEvent` 返回 `true` 消费事件
+
+![sence2](https://raw.githubusercontent.com/YummyLau/hexo/master/source/pics/20180307/IMG20180307_150346.png)
+
+* 场景五：`View3#onTouchEvent` 返回 `true` 消费所有 Touch 事件，但是 `Linearlayout2#onInterceptTouchEvent` 拦截了 `ACTION_UP`事件。
+
+
+上述4个场景都说明了：
+  
+* 由 **场景一** 和 **场景二** 可知：如果某一层的 `onTouchEvent` 消费了事件,则其上层各层将不会继续调用其 `onTouchEvent` 且 `dispatchTouchEvent` 都返回 `true`。
+
+* 由 **场景三** 和 **场景四**可知：如果某一层 ViewGroup 拦截了事件，则由其 `onTouchEvent` 决定是否消费事件。如果事件没有被消费，则`dispatchTouchEvent` 返回 `false`，且上层 `viewGroup` 
+继续走 `onTouchEvent` 事件判断是否需要消费事件，回溯循环。
+
+* 由 **场景一** 和 **场景四**可知：如果某一层 ViewGroup 拦截了事件，则其子 View 将无法接收到事件且
 
 
