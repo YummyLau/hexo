@@ -741,33 +741,38 @@ GitHub链接上有本次 [Touch传递测试代码](https://github.com/YummyLau/S
 
 ![layoutshow](https://raw.githubusercontent.com/YummyLau/hexo/master/source/pics/20180307/IMG20180307_143800.png)
 
-* 场景一：`View3#onTouchEvent` 返回 `true` 消费所有 Touch 事件
+* 场景一：`View3#onTouchEvent` 返回 `true` 消费所有事件，上层不拦截。
 
 ![sence1](https://raw.githubusercontent.com/YummyLau/hexo/master/source/pics/20180307/IMG20180307_144011.png)
 
+场景一可知：`View3` 消费所有事件并返回 `true`，对于上层下发的任何事件，`dispatchTouchEvent` 都返回 `true`。
 
-* 场景二：`View3#onTouchEvent` 返回 `false` 不消费 Touch 事件，`Linearlayout2` 返回 `true` 消费所有 Touch 事件
+
+* 场景二：`View3#onTouchEvent` 返回 `false` 不消费 Touch 事件，上层不拦截，`Linearlayout2` 返回 `true` 消费所有 Touch 事件。
 
 ![sence2](https://raw.githubusercontent.com/YummyLau/hexo/master/source/pics/20180307/IMG20180307_144230.png)
 
-* 场景三：`Linearlayout2#onInterceptTouchEvent` 返回 `true` 拦截 Touch 事件，但是 `Linearlayout2#onTouchEvent` 返回 `false` 不消费事件
+场景二可知：如果末层不消费所有事件，则 `ACTION_DOWN` 会开始从末层向上传递。`Linearlayout2` 消费了`ACTION_DOWN`之后，其及上层`dispatchTouchEvent` 都返回 `true`。`ACTION_DOWN` 之后的事件序列（如ACTION_MOVE，ACTION_UP）都会往`Linearlayout2`分发，其下层就再也收不到后续事件了。
 
-![sence2](https://raw.githubusercontent.com/YummyLau/hexo/master/source/pics/20180307/IMG20180307_145808.png)
+* 场景三：`Linearlayout2#onInterceptTouchEvent` 返回 `true` 拦截 Touch 事件，但是 `Linearlayout2#onTouchEvent` 返回 `false` 不消费事件。
 
-* 场景四：`Linearlayout2#onInterceptTouchEvent` 返回 `true` 拦截 Touch 事件，但是 `Linearlayout2#onTouchEvent` 返回 `true` 消费事件
+![sence3](https://raw.githubusercontent.com/YummyLau/hexo/master/source/pics/20180307/IMG20180307_145808.png)
 
-![sence2](https://raw.githubusercontent.com/YummyLau/hexo/master/source/pics/20180307/IMG20180307_150346.png)
+场景三可知：`Linearlayout2` 拦截了 `ACTION_DOWN` 之后，其子 View 再也收不到任何事件，其消费结果由 `onTouchEvent` 决定，如果不消费，则往上层传，直到找到某层消费事件。如果没有任何一层消费，则后续事件序列也不会下发了。
 
-* 场景五：`View3#onTouchEvent` 返回 `true` 消费所有 Touch 事件，但是 `Linearlayout2#onInterceptTouchEvent` 拦截了 `ACTION_UP`事件。
+* 场景四：`Linearlayout2#onInterceptTouchEvent` 返回 `true` 拦截 Touch 事件，但是 `Linearlayout2#onTouchEvent` 返回 `true` 消费事件。
 
+![sence4](https://raw.githubusercontent.com/YummyLau/hexo/master/source/pics/20180307/IMG20180307_150346.png)
 
-上述4个场景都说明了：
-  
-* 由 **场景一** 和 **场景二** 可知：如果某一层的 `onTouchEvent` 消费了事件,则其上层各层将不会继续调用其 `onTouchEvent` 且 `dispatchTouchEvent` 都返回 `true`。
+场景四可知：`Linearlayout2` 拦截了 `ACTION_DOWN` 之后，其子 View 再也收不到任何事件，如果消费 `ACTION_DOWN`，则后续事件序列都往`Linearlayout2` 下发。
 
-* 由 **场景三** 和 **场景四**可知：如果某一层 ViewGroup 拦截了事件，则由其 `onTouchEvent` 决定是否消费事件。如果事件没有被消费，则`dispatchTouchEvent` 返回 `false`，且上层 `viewGroup` 
-继续走 `onTouchEvent` 事件判断是否需要消费事件，回溯循环。
+* 场景五：`View3#onTouchEvent` 返回 `true` 消费所有除 `ACTION_CANCEL` 事件，但是 `Linearlayout2#onInterceptTouchEvent` 拦截了 `ACTION_MOVE`事件且不消费任何事件。
 
-* 由 **场景一** 和 **场景四**可知：如果某一层 ViewGroup 拦截了事件，则其子 View 将无法接收到事件且
+![sence5](https://raw.githubusercontent.com/YummyLau/hexo/master/source/pics/20180307/IMG20180307_191853.png)
+
+场景五可知：`ACTION_DOWN`传递到 `View3`被其消费，后续序列事件本应该传递到 `View3`。当 `ACTION_MOVE` 被 `Linearlayout2`拦截之后，无论是否消费，`View3`再也收不到 `ACTION_MOVE` 及其后续的事件序列，但是会在事件被一次拦截时收到 `ACTION_CANCEL`，是否消费 `ACTION_CANCEL` 的结果会被当做此次传递的结果返回。此后，此次`ACTION_MOVE`后续的事件序列往 `Linearlayout2` 下发。
+
+### 一张图，懂流程
+
 
 
