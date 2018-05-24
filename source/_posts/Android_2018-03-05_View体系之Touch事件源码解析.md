@@ -57,7 +57,7 @@ ViewGroup.java
 ### ViewGroup之核心分发
 `DecorView` 调用 `dispatchTouchEvent` 分发 `Touch` 事件。代码很长，可是不难，逻辑比较清晰。
 
-```
+```java
     @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
 
