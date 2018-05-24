@@ -1,5 +1,5 @@
 ---
-title: Git的一些关键配置
+title: Git的常见Tips
 layout: post
 date: 2017-02-12 19:49:57
 comments: true
@@ -80,10 +80,30 @@ cd ../
 rm -rf <git repo>
 ```
 
+### 如何把已提交的commit放到另一个分支
+如果在分支A中 commit 了记录 A ， 然后切换到分支 B 中，可使用 `cherry-pick` 指令迁移 commit 记录 。   
+根据 git 文档记录
+> Apply the changes introduced by some existing commits
 
+即修改已经存在的 commit 记录 。 使用以下指令处理 ：
+
+```
+git cherry-pick <commit id>
+```
+用例说明 :
+
+```
+git checkout a
+<操作文件> ...
+git add *
+git commit -m "something commit"
+git checkout b
+git cherry-pick <commit id>
+```
 
 **更新记录**
->2018/03/02  新增修改repo的Git记录
+>2018/03/02  新增修改 repo 的 Git 记录  
+>2018/05/24  新增把已提交的 commit 放到另一分支
 
 
 
