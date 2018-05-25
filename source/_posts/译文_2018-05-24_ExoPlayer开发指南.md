@@ -4,7 +4,7 @@ layout: post
 date: 2018-05-24 15:38:42
 comments: true
 categories: 译文
-tags: [Android译文]
+tags: [Android译文,多媒体]
 ---
 ## 开发者指南
 
