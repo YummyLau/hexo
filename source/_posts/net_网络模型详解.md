@@ -11,7 +11,6 @@ tags: [网络]
 
 * 了解网络模型中各层的工作内容及使用协议
 * 掌握各层中比较核心的协议及运行原理
-https://raw.githubusercontent.com/YummyLau/hexo/master/source/pics/net/
 
 <h2 id="1">协议模型</h2>
 主流网络结构分为 OSI七层协议和五层协议模型
