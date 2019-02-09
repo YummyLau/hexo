@@ -15,15 +15,6 @@ tags: [网络]
 * 了解 https 加密流程, 涉及 tcp 握手, 加密原理
 * 解释你可能产生的疑惑, 加深对文章篇幅的理解
 
-**目录索引**
-
-—— [资源定位](#1)     
-—— [HTTP协议](#2)   
-—— [HTTPS协议](#3)  
-———— [TCP连接的建立和关闭](#3_1)   
-———— [证书](#3_2)   
-———— [SSL/TLS握手流程](#3_3)   
-—— [解释一些疑惑](#3)   
 
 
 在了解 HTTP 协议之前, 先了解下在万维网上资源是如何被定位的。
@@ -79,7 +70,7 @@ HTTP 基于请求响应的模型, 每一个请求都算一个事务, 无论是�
 
 **请求报文**
 
-<img src="../pics/net/http_1.png" width = "400" height = "150" alt="图片名称" align=center />
+<img src="https://raw.githubusercontent.com/YummyLau/hexo/master/source/pics/net/http_1.png" width = "400" height = "150" alt="图片名称" align=center />
 
 
 * 开始行
@@ -141,7 +132,7 @@ HTTP 基于请求响应的模型, 每一个请求都算一个事务, 无论是�
 
 **响应报文**
 
-<img src="../pics/net/http_2.png" width = "400" height = "150" alt="图片名称" align=center />
+<img src="https://raw.githubusercontent.com/YummyLau/hexo/master/source/pics/net/http_2.png" width = "400" height = "150" alt="图片名称" align=center />
 
 * 开始行
 
@@ -364,7 +355,7 @@ Certificate Request:
 ```
 **如何进行数字签名**
 
-<img src="../pics/net/signing.jpg" width = "300" height = "400" alt="图片名称" align=center />
+<img src="https://raw.githubusercontent.com/YummyLau/hexo/master/source/pics/net/signing.jpg" width = "300" height = "400" alt="图片名称" align=center />
 
 上图来自于互联网, 整个流程成大致分为一下几个步骤
 
@@ -374,7 +365,7 @@ Certificate Request:
 
 **如何进行签名认证**
 
-<img src="../pics/net/verification.jpg" width = "300" height = "400" alt="图片名称" align=center />
+<img src="https://raw.githubusercontent.com/YummyLau/hexo/master/source/pics/net/verification.jpg" width = "300" height = "400" alt="图片名称" align=center />
 
 上图来自于互联网, 整个流程成大致分为一下几个步骤
 
@@ -398,7 +389,7 @@ Certificate Request:
 
 在了解握手流程之前, 先看一张整体的流程图（图片来自于互联网）。
 
-<img src="../pics/net/ssl_1.png" width = "600" height = "400" alt="图片名称" align=center />
+<img src="https://raw.githubusercontent.com/YummyLau/hexo/master/source/pics/net/ssl_1.png" width = "600" height = "400" alt="图片名称" align=center />
 
 在 TCP 完成三次握手建立连接之后, HTTPS 开始加密认证握手流程。
  

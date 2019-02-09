@@ -11,25 +11,7 @@ tags: [网络]
 
 * 了解网络模型中各层的工作内容及使用协议
 * 掌握各层中比较核心的协议及运行原理
-
-**目录索引**
-
-[协议模型](#1模型)     
-—— [应用层](#1_1)   
-————[DNS域名系统](#1_1_1)   
-———— [简单邮件传送协议SMTP，邮件读取协议POP3/IMAP](#1_1_2)   
-————  [文件传送协议FTP](#1_1_3)   
-—— [传输层](#1_2)  
-————  [TCP协议](#1_2_1)   
-————  [UDP协议](#1_2_2)   
-—— [网络层](#1_3)  
-————  [网际协议 IP](#1_3_1)   
-————  [网际控制报文协议ICMP](#1_3_2)   
-————  [内部网关协议RIP/OSPF](#1_3_3)   
-————  [外部网关协议BGP](#1_3_4)   
-————  [路由器详解](#1_3_5)   
-—— [数据链路层](#1_4)  
-—— [物理层](#1_5)  
+https://raw.githubusercontent.com/YummyLau/hexo/master/source/pics/net/
 
 <h2 id="1">协议模型</h2>
 主流网络结构分为 OSI七层协议和五层协议模型
@@ -95,7 +77,7 @@ MIME 在其邮件首部中说明了邮件的数据类型(如文本、声音、�
 
 **邮件的传输流程**
 
-<img src="../pics/net/email_1.png" width = "600" height = "400" alt="图片名称" align=center />
+<img src="https://raw.githubusercontent.com/YummyLau/hexo/master/source/pics/net/email_1.png" width = "600" height = "400" alt="图片名称" align=center />
 
 **发送和接收邮件的步骤**
 
@@ -112,7 +94,7 @@ FTP服务器进程由：主进程（负责接受新的请求）、从属进程�
 
 **FTP文件传送流程**
 
-<img src="../pics/net/ftp_1.png" width = "600" height = "300" alt="图片名称" align=center />
+<img src="https://raw.githubusercontent.com/YummyLau/hexo/master/source/pics/net/ftp_1.png" width = "600" height = "300" alt="图片名称" align=center />
 
 <h3 id="1_2">传输层</h3>
 
@@ -141,7 +123,7 @@ TCP 连接 ::= {socket1, socket2} = {(IP1: port1), (IP2: port2)}
 ```
 **TCP报文头部**
 
-<img src="../pics/net/tcp_1.png" width = "600" height = "300" alt="图片名称" align=center />
+<img src="https://raw.githubusercontent.com/YummyLau/hexo/master/source/pics/net/tcp_1.png" width = "600" height = "300" alt="图片名称" align=center />
 
 TCP报文头部长度为 固定20字节 + 可选长度 + 填充, 各字段的含义如下
 
@@ -173,7 +155,7 @@ MSS = MTU - IP数据报首部20字节 - TCP数据报头部大小
 
 **TCP的有限状态机**
 
-<img src="../pics/net/tcp_2.png" width = "700" height = "600" alt="图片名称" align=center />
+<img src="https://raw.githubusercontent.com/YummyLau/hexo/master/source/pics/net/tcp_2.png" width = "700" height = "600" alt="图片名称" align=center />
 
 TCP的状态机诠释了整个TCP连接到终结的流程, 详情页握手信息见另一篇文章。
 
@@ -184,7 +166,7 @@ TCP的状态机诠释了整个TCP连接到终结的流程, 详情页握手信息
 
 **UDP的数据报格式**
 
-<img src="../pics/net/udp_1.png" width = "500" height = "200" alt="图片名称" align=center />
+<img src="https://raw.githubusercontent.com/YummyLau/hexo/master/source/pics/net/udp_1.png" width = "500" height = "200" alt="图片名称" align=center />
 
 从上图上看, UDP 把整个数据都交付给网络层处理。UDP传输数据报受限于MTU, 如果下层IP数据报超过该限制则需要IP分片, 而TCP传输报文段受限于MSS, 如果传输报文段超过 MSS 则需要 TCP 分段。
  
@@ -276,7 +258,7 @@ TCP的状态机诠释了整个TCP连接到终结的流程, 详情页握手信息
 
 * 定义数据报结构
 
-  <img src="../pics/net/ip_1.png" width = "600" height = "200" alt="图片名称" align=center />
+  <img src="https://raw.githubusercontent.com/YummyLau/hexo/master/source/pics/net/ip_1.png" width = "600" height = "200" alt="图片名称" align=center />
 
    IP数据包的结构说明
 
@@ -303,7 +285,7 @@ TCP的状态机诠释了整个TCP连接到终结的流程, 详情页握手信息
 询问报文：回送请求或回答、时间戳请求或回答
 其报文结构
 
-<img src="../pics/net/icmp_1.png" width = "500" height = "200" alt="图片名称" align=center />
+<img src="https://raw.githubusercontent.com/YummyLau/hexo/master/source/pics/net/icmp_1.png" width = "500" height = "200" alt="图片名称" align=center />
 
 <h4 id="1_3_3">内部网关协议RIP/OSPF</h4> 
 
@@ -316,13 +298,13 @@ TCP的状态机诠释了整个TCP连接到终结的流程, 详情页握手信息
 
 * 报文格式
 
-	<img src="../pics/net/rip_1.png" width = "500" height = "250" alt="图片名称" align=center />
+	<img src="https://raw.githubusercontent.com/YummyLau/hexo/master/source/pics/net/rip_1.png" width = "500" height = "250" alt="图片名称" align=center />
 
 **OSPF协议**, 使用 Dijkstra 提出的最短路径算法SPF, 它并不表示其他的路由选择协议不是“最短路径优先”，是分布式的链路状态协议。
 
 * 报文格式
 
-	<img src="../pics/net/ospf_1.png" width = "500" height = "300" alt="图片名称" align=center />
+	<img src="https://raw.githubusercontent.com/YummyLau/hexo/master/source/pics/net/ospf_1.png" width = "500" height = "300" alt="图片名称" align=center />
 
 <h4 id="1_3_4">外部网关协议BGP</h4> 
 
@@ -337,13 +319,13 @@ TCP的状态机诠释了整个TCP连接到终结的流程, 详情页握手信息
     
 **报文格式**
 
-<img src="../pics/net/bgp_1.png" width = "500" height = "300" alt="图片名称" align=center />
+<img src="https://raw.githubusercontent.com/YummyLau/hexo/master/source/pics/net/bgp_1.png" width = "500" height = "300" alt="图片名称" align=center />
 
 <h4 id="1_3_5">路由器详解</h4> 
 
 先看一张计算机网络路由结构图
 
- <img src="../pics/net/route_1.png" width = "600" height = "300" alt="图片名称" align=center />
+ <img src="https://raw.githubusercontent.com/YummyLau/hexo/master/source/pics/net/route_1.png" width = "600" height = "300" alt="图片名称" align=center />
 
 **分组处理**
 
@@ -392,7 +374,7 @@ TCP的状态机诠释了整个TCP连接到终结的流程, 详情页握手信息
 
 **数据帧结构**
 
-<img src="../pics/net/frame_1.png" width = "500" height = "150" alt="图片名称" align=center />
+<img src="https://raw.githubusercontent.com/YummyLau/hexo/master/source/pics/net/frame_1.png" width = "500" height = "150" alt="图片名称" align=center />
 
 帧的传输传输一定是可靠传输,  并且链路是一条无源的点到点的物理线路段, 中间没有任何其他的交换节点
 
@@ -404,11 +386,11 @@ TCP的状态机诠释了整个TCP连接到终结的流程, 详情页握手信息
 
 * 协议涉及的范围
 
-	<img src="../pics/net/frame_2.png" width = "500" height = "150" alt="图片名称" align=center />
+	<img src="https://raw.githubusercontent.com/YummyLau/hexo/master/source/pics/net/frame_2.png" width = "500" height = "150" alt="图片名称" align=center />
 
 * ppp协议帧格式
     
-	<img src="../pics/net/frame_3.png" width = "500" height = "250" alt="图片名称" align=center />
+	<img src="https://raw.githubusercontent.com/YummyLau/hexo/master/source/pics/net/frame_3.png" width = "500" height = "250" alt="图片名称" align=center />
     
 * 工作流程
 	* 当用户拨号接入 ISP 时，路由器的调制解调器对拨号做出确认，并建立一条物理连接。
