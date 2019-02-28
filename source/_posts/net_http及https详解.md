@@ -15,15 +15,6 @@ tags: [网络]
 * 了解 https 加密流程, 涉及 tcp 握手, 加密原理
 * 解释你可能产生的疑惑, 加深对文章篇幅的理解
 
-**目录索引**
-
-—— [资源定位](#1)     
-—— [HTTP协议](#2)   
-—— [HTTPS协议](#3)  
-———— [TCP连接的建立和关闭](#3_1)   
-———— [证书](#3_2)   
-———— [SSL/TLS握手流程](#3_3)   
-—— [解释一些疑惑](#3)   
 
 
 在了解 HTTP 协议之前, 先了解下在万维网上资源是如何被定位的。
@@ -79,7 +70,7 @@ HTTP 基于请求响应的模型, 每一个请求都算一个事务, 无论是�
 
 **请求报文**
 
-<img src="../pics/net/http_1.png" width = "400" height = "150" alt="图片名称" align=center />
+<img src="https://raw.githubusercontent.com/YummyLau/hexo/master/source/pics/net/http_1.png" width = "400" height = "150" alt="图片名称" align=center />
 
 
 * 开始行
@@ -127,21 +118,22 @@ HTTP 基于请求响应的模型, 每一个请求都算一个事务, 无论是�
 
 * 请求方法
 
-	| 方法        | 方法描述          |
-	|:----:      | :----:     |
-	| GET        | 请求获取服务器资源, 返回报文主体   |
-	| POST        | 向指定资源提交数据进行处理请求（例如提交表单或者上传文件）。数据被包含在请求体中。POST请求可能会导致新的资源的建立和/或已有资源的修改  |  
-	| HEAD        | 用于确认URI的有效性及资源更新的日期时间等, 和GET一样, 只不过不返回主体  | 
-	| PUT        | 从客户端向服务器传送的数据取代指定的文档的内容 | 
-	| DELETE        | 请求服务器删除指定的页面  | 
-	| CONNECT        | HTTP/1.1协议中预留给能够将连接改为管道方式的代理服务器。要求使用隧道协议连接代理 | 
-	| OPTIONS        | 允许客户端查看服务器的性能, 询问支持的方法  | 
-	| TRACE        | 回显服务器收到的请求, 主要用于测试或诊断, 追踪路径  | 
+
+| 方法        | 方法描述 |
+|:---:      | :---:     |
+| GET        | 请求获取服务器资源, 返回报文主体   |
+| POST        | 向指定资源提交数据进行处理请求（例如提交表单或者上传文件）。数据被包含在请求体中。POST请求可能会导致新的资源的建立和/或已有资源的修改  |  
+| HEAD        | 用于确认URI的有效性及资源更新的日期时间等, 和GET一样, 只不过不返回主体  | 
+| PUT        | 从客户端向服务器传送的数据取代指定的文档的内容 | 
+| DELETE        | 请求服务器删除指定的页面  | 
+| CONNECT        | HTTP/1.1协议中预留给能够将连接改为管道方式的代理服务器。要求使用隧道协议连接代理 | 
+| OPTIONS        | 允许客户端查看服务器的性能, 询问支持的方法  | 
+| TRACE        | 回显服务器收到的请求, 主要用于测试或诊断, 追踪路径  | 
 
 
 **响应报文**
 
-<img src="../pics/net/http_2.png" width = "400" height = "150" alt="图片名称" align=center />
+<img src="https://raw.githubusercontent.com/YummyLau/hexo/master/source/pics/net/http_2.png" width = "400" height = "150" alt="图片名称" align=center />
 
 * 开始行
 
@@ -176,30 +168,28 @@ HTTP 基于请求响应的模型, 每一个请求都算一个事务, 无论是�
 
 * 响应状态码
 
-	| 状态吗        | 信息      		|短语原因          |
-	|:----:      | :----:     		|:----:   |
-	| 1xx        | Informational(信息性状态码)   | 接收的请求正在处理|
-	| 100        | Continue  		| 客户端应当继续发送请求|
-	| 101        | Switching Protocols | 服务器已经理解了客户端的请求，并将通过Upgrade 消息头通知客户端采用不同的协议来完成这个请求|
-	| 102        | Processing 		| 由WebDAV（RFC 2518）扩展的状态码，代表处理将被继续执行|
-	| 2XX        | Success(成功状态码) | 请求正常处理完毕|
-	| 200        | OK 				| 从客户端发来的请求在服务端正常处理|
-	| 204        | No Content 		| 服务端接收的请求已成功处理，但在返回的响应报文中不含实体的主体部分，另外也不允许返回任何实体的主体|
-	| 206        | Partial Content  | 客户端进行了范围请求， 而服务器成功执行了这部分请求，响应报文中包含由Content—Range 指定的范围的实体内容|
-	| 3XX        | Redirection(重定向状态码)  | 需要进行附加操作已完成请求|
-	| 301        | Moved Permanently  | 永久性重定向|
-	| 302        | Found 			| 临时性重定向|
-	| 303        | See Other  		| 由于对应的资源存在着另一个uri，应使用GET方法定向获取请求的资源|
-	| 304        | Not Modified  	| 客户端发送附带条件的请求，也就是资源找到了，但是没有符合条件请求|
-	| 307        | Tempoeary Redirect | 临时重定向，和302很相似，但是会根据游览器不同导致出现不同问题|
-	| 4XX        | Client Error(客户端错误状态码)  | 服务器无法处理请求|
-	| 400        | Bad Request  	| 请求报文中存在语法错误：游览器会像200 OK 一样对待改状态码|
-	| 401        | Unauthorized  	| 发送的请求需要通过http认证(BASIC认证、DIGEST认证)的认证信息，如果前面已经请求过一次，证明认证失败|
-	| 403        | Forbidden 		| 请求资源的访问被服务器拒绝|
-	| 404        | Not Found  		| 服务器无法找到请求的资源|
-	| 5XX        | Server Error(服务端错误状态码)  | 服务器处理请求出错|
-	| 500        | Internal Server Error  | 服务器端知悉请求时发生错误|
-	| 503        | Service Unavailable | 服务器暂时处于超负载或正在进行停机维护，现在无法处理请求|
+| 状态吗        | 信息      		|短语原因          |  
+|:---:      | :---:     |:---:     |
+| 1xx        | Informational(信息性状态码)   | 接收的请求正在处理|
+| 100        | Continue  		| 客户端应当继续发送请求|
+| 101        | Switching Protocols | 服务器已经理解了客户端的请求，并将通过Upgrade 消息头通知客户端采用不同的协议来完成这个请求|
+| 2XX        | Success(成功状态码) | 请求正常处理完毕|
+| 200        | OK 				| 从客户端发来的请求在服务端正常处理|
+| 204        | No Content 		| 服务端接收的请求已成功处理，但在返回的响应报文中不含实体的主体部分，另外也不允许返回任何实体的主体|
+| 206        | Partial Content  | 客户端进行了范围请求， 而服务器成功执行了这部分请求，响应报文中包含由Content—Range 指定的范围的实体内容|
+| 3XX        | Redirection(重定向状态码)  | 需要进行附加操作已完成请求|
+| 301        | Moved Permanently  | 永久性重定向|
+| 302        | Found 			| 临时性重定向|
+| 303        | See Other  		| 由于对应的资源存在着另一个uri，应使用GET方法定向获取请求的资源|
+| 307        | Tempoeary Redirect | 临时重定向，和302很相似，但是会根据游览器不同导致出现不同问题|
+| 4XX        | Client Error(客户端错误状态码)  | 服务器无法处理请求|
+| 400        | Bad Request  	| 请求报文中存在语法错误：游览器会像200 OK 一样对待改状态码|
+| 401        | Unauthorized  	| 发送的请求需要通过http认证(BASIC认证、DIGEST认证)的认证信息，如果前面已经请求过一次，证明认证失败|
+| 403        | Forbidden 		| 请求资源的访问被服务器拒绝|
+| 404        | Not Found  		| 服务器无法找到请求的资源|
+| 5XX        | Server Error(服务端错误状态码)  | 服务器处理请求出错|
+| 500        | Internal Server Error  | 服务器端知悉请求时发生错误|
+| 503        | Service Unavailable | 服务器暂时处于超负载或正在进行停机维护，现在无法处理请求|
 
 
 <h3 id="3">HTTPS协议</h3>
@@ -309,7 +299,8 @@ SSL(Secure Sockets Layer 安全套接层),及其继任者传输层安全（Trans
 	openssl req -new -key user.key -out user.csr
 	openssl req -text -in user.csr -noout
 	openssl ca -in user.csr -out user.crt -cert ca.crt -keyfile ca.key -config openssl.cnf
- 	```	
+ 	```	    
+ 
  	
 最后能看到生成的证书内容
 
@@ -362,9 +353,10 @@ Certificate Request:
           1f:cd:63:d4
 
 ```
+
 **如何进行数字签名**
 
-<img src="../pics/net/signing.jpg" width = "300" height = "400" alt="图片名称" align=center />
+<img src="https://raw.githubusercontent.com/YummyLau/hexo/master/source/pics/net/signing.jpg" width = "300" height = "400" alt="图片名称" align=center />
 
 上图来自于互联网, 整个流程成大致分为一下几个步骤
 
@@ -374,7 +366,7 @@ Certificate Request:
 
 **如何进行签名认证**
 
-<img src="../pics/net/verification.jpg" width = "300" height = "400" alt="图片名称" align=center />
+<img src="https://raw.githubusercontent.com/YummyLau/hexo/master/source/pics/net/verification.jpg" width = "300" height = "400" alt="图片名称" align=center />
 
 上图来自于互联网, 整个流程成大致分为一下几个步骤
 
@@ -398,7 +390,7 @@ Certificate Request:
 
 在了解握手流程之前, 先看一张整体的流程图（图片来自于互联网）。
 
-<img src="../pics/net/ssl_1.png" width = "600" height = "400" alt="图片名称" align=center />
+<img src="https://raw.githubusercontent.com/YummyLau/hexo/master/source/pics/net/ssl_1.png" width = "600" height = "400" alt="图片名称" align=center />
 
 在 TCP 完成三次握手建立连接之后, HTTPS 开始加密认证握手流程。
  
