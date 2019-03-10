@@ -386,7 +386,7 @@ changyan:
 # more info please open https://valine.js.org
 valine:
   enable: ture
-  appid: pPdkM9YTrgYDV8coDCdALdmi-gzGzonHsz
+  appid: pPdkM9YTrgYDV8coDCdALdmi-gzGzoHsz
   appkey: 5HrONz3gb8XPDrUna01sa0gY
   notify: false # mail notifier , https://github.com/xCss/Valine/wiki
   verify: false # Verification code
