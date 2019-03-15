@@ -230,7 +230,7 @@ auto_excerpt:
 post_meta:
   item_text: true
   created_at: true
-  #updated_at: true
+ # updated_at: true
   categories: true
 
 # Post wordcount display settings
@@ -385,12 +385,12 @@ changyan:
 # You can get your appid and appkey from https://leancloud.cn
 # more info please open https://valine.js.org
 valine:
-  enable: false
-  appid:  # your leancloud application appid
-  appkey:  # your leancloud application appkey
+  enable: ture
+  appid: pPdkM9YTrgYDV8coDCdALdmi-gzGzoHsz
+  appkey: 5HrONz3gb8XPDrUna01sa0gY
   notify: false # mail notifier , https://github.com/xCss/Valine/wiki
   verify: false # Verification code
-  placeholder: Just go go # comment box placeholder
+  placeholder: 留下你的足迹呗 ヾﾉ≧∀≦)o
   avatar: mm # gravatar style
   guest_info: nick,mail,link # custom comment header
   pageSize: 10 # pagination size
@@ -408,7 +408,7 @@ valine:
 # Introduction: https://imsun.net/posts/gitment-introduction/
 # You can get your Github ID from https://api.github.com/users/<Github username>
 gitment:
-  enable: true
+  enable: false
   mint: true # RECOMMEND, A mint on Gitment, to support count, language and proxy_gateway
   count: true # Show comments count in post meta area
   lazy: false # Comments lazy loading with a button
