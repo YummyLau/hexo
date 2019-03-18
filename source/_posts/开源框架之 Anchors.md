@@ -7,7 +7,7 @@ categories: Android
 tags: [我的开源]
 ---
 
-<img src="../pics/anchors/anchor_logo.png" width = "1300" height = "300" alt="图片名称" align=center />
+<img src="https://raw.githubusercontent.com/YummyLau/hexo/master/source/pics/anchors/anchor_logo.png" width = "1300" height = "300" alt="图片名称" align=center />
 
 #### 简介
 
@@ -102,7 +102,7 @@ tags: [我的开源]
 	
 下面是没有使用锚点和使用锚点场景下, **Trace** 给出的执行时间
 
-<img src="../pics/anchors/anchor_1.png" width = "1860" height = "600" alt="图片名称" align=center />
+<img src="https://raw.githubusercontent.com/YummyLau/hexo/master/source/pics/anchors/anchor_1.png" width = "1860" height = "600" alt="图片名称" align=center />
 
 依赖图中有着一条 `UITHREAD_TASK_A -> TASK_90 -> TASK_92 -> Task_93`。假设我们的这条依赖路径是后续业务的前置条件,则我们需要等待该业务完成之后再进行自身的业务代码。如果不是则我们不关系他们的结束时机。在使用锚点功能时，我们勾住 `TASK_93`，则从始端到该锚点的优先级将被提升。从上图可以看到执行该依赖链的时间缩短了。
 
