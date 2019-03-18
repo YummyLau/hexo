@@ -20,11 +20,11 @@ tags: [源码解析]
 
 **Alpha** 的定位是基于 PERT 图构建的 Android 异步启动框架，用于启动时并发完成依赖初始化。封装了 `Task` 类用于表示一个异步任务, 衍生出`Project` 及 `AnchorTask` 用于处理多个 *task* 对象构成的图结构。 其类图关系如下：
 
-<img src="../pics/alpha/alpha_1.png" width = "260" height = "350" alt="图片名称" align=center />
+<img src="https://raw.githubusercontent.com/YummyLau/hexo/master/source/pics/alpha/alpha_1.png" width = "260" height = "350" alt="图片名称" align=center />
 
 其外层业务只需要继承 `Task` 或者同个构建 `Project` 来编写业务依赖逻辑, 并通过设置 *successor* 和 *predecessor* 构建依赖图， 理想的结构应该如下:
 
-<img src="../pics/alpha/alpha_2.png" width = "463" height = "808" alt="图片名称" align=center />
+<img src="https://raw.githubusercontent.com/YummyLau/hexo/master/source/pics/alpha/alpha_2.png" width = "463" height = "808" alt="图片名称" align=center />
 
 但是如果你添加 Task 启动的时候，会收到 `xxxTask cannot be cast to com.alibaba.android.alpha.Project`。 从源码层上看确实不能从一个 *task* 启动。
 
