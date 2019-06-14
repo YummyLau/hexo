@@ -6,7 +6,9 @@ comments: true
 categories: Android
 tags: [Android经验]
 ---
+
 <!--more-->
+
 # View
 ### RecyclerView
 
@@ -20,6 +22,10 @@ tags: [Android经验]
 ```
 ((SimpleItemAnimator)recyclerView.getItemAnimator()).setSupportsChangeAnimations(false);
 ```
+
+* 在大神动态列表中曾出现 Recyclerview 中的 item 出现莫名的偏移滚动
+
+	这个问题经过定位存在于 viewholder 中的某个 view 可能提前获取到焦点。 同时在。alibaba-vlayout 库中也发现有人反馈改问题。 https://github.com/alibaba/vlayout/issues/225  解决的方法是在 Recyclerview中外层父布局中添加 `android:descendantFocusability="blocksDescendants"` 用于父布局覆盖 Recyclerview 优先抢占焦点。
 
 ### AppBarLayout
 
@@ -72,6 +78,20 @@ tags: [Android经验]
 	style="?android:attr/borderlessButtonStyle"
 	```
 	
+* 非主线也能更新ui的问题,如果在onCreate直接跑异步线程可以更新ui
+	谷歌在 viewRootImpl 中检查更新ui的线程
+	
+	```
+	void checkThread() {  
+        if (mThread != Thread.currentThread()) {  
+            throw new CalledFromWrongThreadException(  
+                    "Only the original thread that created a view hierarchy can touch its views.");  
+        }  
+    } 
+	```
+	在执行onCreate的时候这个判断并没有执行到
+
+	
 # 系统适配
 * 如何解决 NatigationBar 被 PopupWindow 遮挡的问题
 
@@ -105,6 +125,10 @@ tags: [Android经验]
 * 华为设备产生太多 broadcast 导致crash的问题
 
 	由于部分华为中，如果app注册超过500个BroadcastReceiver就会抛出 “ *Register too many Broadcast Receivers* ” 异常。通过分析发现其内部有一个白名单，自己可以通过创建一个新的app，使用微信包名进行测试，发现并没有这个限制。通过反射 LoadedApk 类拿到 mReceiverResource 中的 mWhiteList 对象添加我们的包名就可以了。 可以参考 https://github.com/llew2011/HuaWeiVerifier 这个项目。
+	
+* 各种通知栏的适配问题
+	
+	参考 [网易考拉实现的适配方法]( https://iluhcm.com/2017/03/12/experience-of-adapting-to-android-notifications/)
 
 
 
@@ -127,10 +151,24 @@ tags: [Android经验]
 	```
 	比如登陆，encode = true 表示未对特殊字符进行url编码，默认是false。
 
+# 数据库
+* 如何处理 sqlite 多线程读写问题
+	* 一个helper实例对应一个 db connectton，这个连接能提供读连接和写连接，如果只是调用 read-only，则默认也会有写连接。
+	* 一个helper实例可以在多个线程中使用，java层会使用锁机制保证线程同步，哪怕有100个线程，对数据度的调用也会被序列化
+	* 如果尝试从不同 connection 同时对数据库进行写操作，则有一个会失败。并不会按照第一个写完再轮到第二个写，有一些sqlite版本甚至不会有错误提示。
+	
+	一般而言，如果要在多线程环境下使用数据库，则确保多个线程中使用的是同一个SQLiteDataBase对象，该对象对应一个db文件。
+	
+	特殊情况，如果多个 SQLiteDataBase 打开同一个 db 文件，同时使用不同线程同时写（insert，update，exexSQL）会导致在 `SQLiteStatement.native_execute` 方法时可能导致异常。这个异常来自本地方法里面，仅仅在Java对有对 SQLiteDataBase 进行同步锁保护。但是多线程读（query）返回的事 SQLiteCursor保存查询条件并没有立刻执行查询，仅仅在需要时加载部分数据，可以多线程不同 SQLiteDataBase 进行读。
+	
+	如果要处理上述问题，可以使用 “*一个线程写，多个线程同时读，每个线程都用各自SQLiteOpenHelper*。”
+	
+	在android 3.0版本以上 打开 enableWriteAheadLogging。当打开时，它允许一个写线程与多个读线程同时在一个SQLiteDatabase上起作用。实现原理是写操作其实是在一个单独的文件，不是原数据库文件。所以写在执行时，不会影响读操作，读操作读的是原数据文件，是写操作开始之前的内容。在写操作执行成功后，会把修改合并会原数据库文件。此时读操作才能读到修改后的内容。但是这样将花费更多的内存。
+	
 
-# Git
+# 版本构建
 
-* 修改 commit 记录
+* git 修改 commit 记录
 
 	```
 	git reset --soft HEAD^
@@ -141,14 +179,23 @@ tags: [Android经验]
 	git commit --amend
 	```
 
-* git ignore 忽略文件不生效
-	
+* git ignore 文件不生效
+
 	```
 	git rm -r --cached .
 	git add .
 	git commit -m 'update .gitignore'
-	
 	```
+	
+* gradle 配置本地离线 zip
+
+	1. 离线下载 gradle 离线包保存在 url 中
+	2. 修改 *gradle/wrapper/gradle-wrapper.properties* 调整 *distributionUrl* 目录指向 url
+	3. 修改 *build.gradle*  classpath 版本映射 gradle 版本
+
+	
+	
+
 
 #编码
 
