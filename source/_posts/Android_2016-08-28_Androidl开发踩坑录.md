@@ -166,7 +166,11 @@ tags: [Android经验]
 	在android 3.0版本以上 打开 enableWriteAheadLogging。当打开时，它允许一个写线程与多个读线程同时在一个SQLiteDatabase上起作用。实现原理是写操作其实是在一个单独的文件，不是原数据库文件。所以写在执行时，不会影响读操作，读操作读的是原数据文件，是写操作开始之前的内容。在写操作执行成功后，会把修改合并会原数据库文件。此时读操作才能读到修改后的内容。但是这样将花费更多的内存。
 	
 
-# 版本构建
+# 编译/构建/版本
+
+* databinding 中 findBinding vs getBinding 的场景区别
+
+	不同之处在于，findBinding将遍历父节点，而如果使用getBinding时当view不是跟节点会返回null。
 
 * git 修改 commit 记录
 
