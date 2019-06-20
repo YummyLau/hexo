@@ -90,6 +90,30 @@ tags: [Android经验]
     } 
 	```
 	在执行onCreate的时候这个判断并没有执行到
+	
+
+* dialogFragment 设置全屏时左右留空的问题
+
+	在 fragment#onResume 中重新调整 window 布局
+	
+	```
+	android.view.WindowManager.LayoutParams lp = window.getAttributes();
+	lp.width = WindowManager.LayoutParams.MATCH_PARENT;
+	lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
+	window.setAttributes(lp);
+	```
+
+* dialogFragment 设置全屏时状态栏出现黑色布局
+	
+	在主题中设置
+	
+	```
+	<item name="android:windowIsFloating">true</item>
+	```
+	此时 window 为 wrap_content，如果出现左右空白，则考虑使用上个问题的方案。
+
+
+
 
 	
 # 系统适配
@@ -167,6 +191,40 @@ tags: [Android经验]
 	
 
 # 编译/构建/版本
+
+* Dalvik支持的android版本下进行分包执行会有一些限制
+	* 冷启动时需要安装dex文件，如果dex文件太大则可能导致处理时间太长导致 ANR
+	* 即使使用 multiDex 方案在低于 4.0 系统上可能会出现 Dalvik linearAlloc 的bug，这是因为该方案需要申请一个很大的内存，运行时可能的导致程序崩溃。这个限制在 4.0 上虽然有所改善了，但是还是可能在低于 5.0 的机器上触发。
+
+* Dalvik 分包构建每一个 dex 文件时可能出现 java.lang.NoClassDefFoundError
+
+	这个问题的原因是构建工具绘制行比较复杂决策来确定主 dex 文件中需要的类以便应用能够正常的启动。如果启动期间需要的任何类在主 dex 中未能找到，则会抛出上述异常。所有必须要 multiDexKeepFile 或 multiDexKeepProguard 属性中声明他们，手动将这些类指定为主 dex 文件中的必需项。
+	
+	创建 multidex-new.txt文件，写入以下新增的类
+	
+	```
+	com/example/Main2.class
+	com/example/Main3.class
+	```
+	创建 meltidex-new.pro,写入以下 keep 住的类
+		
+	```
+	-keep class com.example.Main2
+	-keep class com.example.Main3
+	```
+	然后在gradle multiDexKeepFile属性 和 multiDexKeepProguard属性声明上述文件
+	
+	```
+	android {
+    buildTypes {
+        release {
+            multiDexKeepFile file 'multidex-new.txt'
+            multiDexKeepProguard 'multidex-new.pro'
+            ...
+        }
+    }
+	}
+	```
 
 * databinding 中 findBinding vs getBinding 的场景区别
 
