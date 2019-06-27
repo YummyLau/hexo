@@ -111,10 +111,78 @@ tags: [Android经验]
 	<item name="android:windowIsFloating">true</item>
 	```
 	此时 window 为 wrap_content，如果出现左右空白，则考虑使用上个问题的方案。
+	
+* 从系统安装起安装应用后启动，Home隐藏后Launcher重复启动的问题
 
+	判断启动页面是否是根节点(推荐)
+	
+	```
+	if(!isTaskRoot()){
+		finish();
+		return 
+	}
+	```
+	或者判断Activity是否多了 **FLAG_ACTIVITY_BROUGHT_TO_FRONT** ，这个tag是该场景导致的
+	
+	```
+	if ((getIntent().getFlags() & Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT) != 0) {
+            finish();
+            return;
+    }
+	```
+	
+* 后台手动清理应用之后，service中启动的notifications并没有消失
 
+	从 [How to remove all notifications when an android app (activity or service) is killed?](https://stackoverflow.com/questions/22210241/how-to-remove-all-notifications-when-an-android-app-activity-or-service-is-kil) 的诸多讨论中学习到， `Service#onTaskRemoved` 是我们的App被清理之后Service的回调。尝试过一下方法并不能达到清除的效果。
+	
+	```
+    @Override
+    public void onTaskRemoved(Intent rootIntent) {
+        super.onTaskRemoved(rootIntent);
+        NotificationManager nManager = ((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE));
+        nManager.cancelAll();
+    }
+	```
+	在线上应用中，由于我们的通知类似于将军令这种有定时更新的功能，需要彻底干掉所有serivce承载的功能，下面方法可行
+	
+	```
+	 @Override
+    public void onTaskRemoved(Intent rootIntent) {
+        super.onTaskRemoved(rootIntent);
+        stopSelf();
+        stopForeground(true);
+    }
+	```
+	
+* 针对有launcher做为Activity的应用，在完全没有启动下收到第三方推送（小米，华为，魅族）/分享拉起的注意事项
 
+	由于我们的应用LauncherActivity用于分发不同场景的入口，A逻辑进入特殊场景页面A，B逻辑进入主页面B。
 
+	* onCreate中优先拦截 intent 判断拉起参数，如果有拉起参数则直接进入主页面B，intent交付给主页面B处理
+	* 部分场景下，比如第三方消息推送，华为和小米拉起闪屏或 launcher intent无法区分，针对该做法是，限定进入闪屏/launcher的逻辑,剩余场景统一进入主页面B
+	
+		```
+   if (后端控制是否需要进入特殊场景页面) {
+            boolean goToA = false;
+            if (getIntent() != null) {
+                String action = getIntent().getAction();
+                Set<String> category = getIntent().getCategories();
+                if (TextUtils.equals(action, "android.intent.action.MAIN")) {
+                    if (category != null && category.contains("android.intent.category.LAUNCHER")) {
+                        Intent intent = new Intent(this, 页面A.class);
+                        intent.setData(getIntent().getData());
+                        startActivity(intent);
+                        goToA = true;
+                    }
+                }
+            }
+            if (! goToA) {
+                goToMainActivity();
+            }
+        } else {
+            goToMainActivity();
+        }
+		```
 	
 # 系统适配
 * 如何解决 NatigationBar 被 PopupWindow 遮挡的问题
