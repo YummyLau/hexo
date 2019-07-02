@@ -183,6 +183,10 @@ tags: [Android经验]
             goToMainActivity();
         }
 		```
+
+* 针对 App 多场景拉起场景下的场景判断分析.
+	
+	可参考我另一篇文章 [对线上项目拉起应用场景的思考总结](http://yummylau.com/2019/06/26/Adnroid_2019-06-06_%E5%AF%B9%E7%BA%BF%E4%B8%8A%E9%A1%B9%E7%9B%AE%E6%8B%89%E8%B5%B7%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF%E7%9A%84%E6%80%9D%E8%80%83%E6%80%BB%E7%BB%93/)
 	
 # 系统适配
 * 如何解决 NatigationBar 被 PopupWindow 遮挡的问题
@@ -297,7 +301,23 @@ tags: [Android经验]
 * databinding 中 findBinding vs getBinding 的场景区别
 
 	不同之处在于，findBinding将遍历父节点，而如果使用getBinding时当view不是跟节点会返回null。
+	
+* 版本构建出现 `Gradle sync failed: Cannot choose between the following configurations of project`。
 
+	参考 [issues](https://github.com/dialogflow/dialogflow-android-client/issues/57) 的回答
+	
+	If you're using Android plugin for Gradle 3.0.0 or higher, the plugin automatically matches each variant of your app with corresponding variants of its local library module dependencies for you. That is, you should no longer target specific variants of local module dependencies, show as below
+	
+	```
+	 dependencies {
+  // Adds the 'debug' varaint of the library to the debug varaint of the app
+  debugCompile project(path: ':my-library-module', configuration: 'debug')
+
+  // Adds the 'release' varaint of the library to the release varaint of the app
+  releaseCompile project(path: ':my-library-module', configuration: 'release')
+	}	
+	```
+	
 * git 修改 commit 记录
 
 	```
