@@ -247,7 +247,7 @@ tags: [Android经验]
 	```
 	比如登陆，encode = true 表示未对特殊字符进行url编码，默认是false。
 
-# 数据库
+# 数据/数据库
 * 如何处理 sqlite 多线程读写问题
 	* 一个helper实例对应一个 db connectton，这个连接能提供读连接和写连接，如果只是调用 read-only，则默认也会有写连接。
 	* 一个helper实例可以在多个线程中使用，java层会使用锁机制保证线程同步，哪怕有100个线程，对数据度的调用也会被序列化
@@ -260,6 +260,12 @@ tags: [Android经验]
 	如果要处理上述问题，可以使用 “*一个线程写，多个线程同时读，每个线程都用各自SQLiteOpenHelper*。”
 	
 	在android 3.0版本以上 打开 enableWriteAheadLogging。当打开时，它允许一个写线程与多个读线程同时在一个SQLiteDatabase上起作用。实现原理是写操作其实是在一个单独的文件，不是原数据库文件。所以写在执行时，不会影响读操作，读操作读的是原数据文件，是写操作开始之前的内容。在写操作执行成功后，会把修改合并会原数据库文件。此时读操作才能读到修改后的内容。但是这样将花费更多的内存。
+	
+* 如何理解 Intent 传递数据出现 `TransactionTooLargeException`
+  
+  Intent 传输数据的机制中，用到了 Binder。Intent 中的数据，会作为 Parcel 被存储在 Binder 的事务缓冲区(Binder transaction buffer)中的对象进行传输.而这个 Binder 事务缓冲区具有一个有限的固定大小，当前为 1MB。你可别以为传递 1MB 以下的数据就安全了，这里的 1MB 空间并不是当前操作独享的，而是由当前进程所共享。也就是说 Intent 在 Activity 间传输数据，本身也不适合传递太大的数据.
+  
+  参考阿里 《Android 开发者手册》 对于Activity间数据通讯数据较大，避免使用Intent+Parcelable的方式，可以考虑使用EventBus等代替方案，避免 `TransactionTooLargeException`。EventBus使用黏性事件来解决，但是针对Activity重建又能拿到Intent而EventBus则不可以，所以需要根据业务来调整。
 	
 
 # 编译/构建/版本
