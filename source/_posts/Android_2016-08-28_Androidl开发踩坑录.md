@@ -324,6 +324,11 @@ tags: [Android经验]
 	}	
 	```
 	
+* kvm/jvm 编译时 -classpath 遇到的分割及空格问题。
+
+	linux/mac OS 上使用 “：” 分割多个classpath路径，window使用 “；” 分割。
+	
+	如果linux/mac OS 路径存在空格，暂时避免，使用多种方式尝试未果=。=。	
 * git 修改 commit 记录
 
 	```
