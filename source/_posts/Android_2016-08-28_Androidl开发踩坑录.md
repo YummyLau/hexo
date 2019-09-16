@@ -82,6 +82,95 @@ tags: [Android经验]
 
 	这个问题经过定位存在于 viewholder 中的某个 view 可能提前获取到焦点。 同时在。alibaba-vlayout 库中也发现有人反馈改问题。 https://github.com/alibaba/vlayout/issues/225  解决的方法是在 Recyclerview中外层父布局中添加 `android:descendantFocusability="blocksDescendants"` 用于父布局覆盖 Recyclerview 优先抢占焦点。
 	
+* **item 内容超过一屏时，findFistCompletelyVisibleItemPosition会返回 -1 的问题**
+	原因是在 `findOneVisibleChild` 计算出来的 start 和 end 已经超过了 reclclerview 的 start 和 end.经过研究源码得到以下。
+	
+	```
+	findFirstCompletelyVisibleItemPosition -> -1
+	findLastCompletelyVisibleItemPosition -> -1
+	findFirstVisibleItemPosition -> 正常
+	findLastVisibleItemPosition -> 正常
+	```
+#### TextView 
+
+* **textview 中富文本点击事件拦截了长按事件**
+
+	这个问题常见于消息列表中，某条消息使用了ClickableSpan用于处理富媒体的点击事件，同时这个消息又需要支持长按复制。由于LinkMovementMethod方法在onTouchEvent一直返回true，可以通过自定义View.onTouchListener来替换setMovenmentMethod达到效果。
+	
+	```
+	public class ClickMovementMethod implements View.OnTouchListener {
+	private LongClickCallback longClickCallback;
+	
+	public static ClickMovementMethod newInstance() {
+	    return new ClickMovementMethod();
+	}
+	
+	@Override
+	public boolean onTouch(final View v, MotionEvent event) {
+	    if (longClickCallback == null) {
+	        longClickCallback = new LongClickCallback(v);
+	    }
+	
+	    TextView widget = (TextView) v;
+	    // MovementMethod设为空，防止消费长按事件
+	    widget.setMovementMethod(null);
+	    CharSequence text = widget.getText();
+	    Spannable spannable = Spannable.Factory.getInstance().newSpannable(text);
+	    int action = event.getAction();
+	    if (action == MotionEvent.ACTION_DOWN || action == MotionEvent.ACTION_UP) {
+	        int x = (int) event.getX();
+	        int y = (int) event.getY();
+	        x -= widget.getTotalPaddingLeft();
+	        y -= widget.getTotalPaddingTop();
+	        x += widget.getScrollX();
+	        y += widget.getScrollY();
+	        Layout layout = widget.getLayout();
+	        int line = layout.getLineForVertical(y);
+	        int off = layout.getOffsetForHorizontal(line, x);
+	        ClickableSpan[] link = spannable.getSpans(off, off, ClickableSpan.class);
+	        if (link.length != 0) {
+	            if (action == MotionEvent.ACTION_DOWN) {
+	                v.postDelayed(longClickCallback, ViewConfiguration.getLongPressTimeout());
+	            } else {
+	                v.removeCallbacks(longClickCallback);
+	                link[0].onClick(widget);
+	            }
+	            return true;
+	        }
+	    } else if (action == MotionEvent.ACTION_CANCEL) {
+	        v.removeCallbacks(longClickCallback);
+	    }
+	
+	    return false;
+	}
+	
+	private static class LongClickCallback implements Runnable {
+	    private View view;
+	
+	    LongClickCallback(View view) {
+	        this.view = view;
+	    }
+	
+	    @Override
+	    public void run() {
+	        // 找到能够消费长按事件的View
+	        View v = view;
+	        boolean consumed = v.performLongClick();
+	        while (!consumed) {
+	            v = (View) v.getParent();
+	            if (v == null) {
+	                break;
+	            }
+	            consumed = v.performLongClick();
+	        }
+	    }
+	}
+	}
+	
+	textView.setOnTouchListener(ClickMovementMethod.newInstance());
+	```
+
+	
 #### ViewPager
 * **如何禁止ViewPager 滑动**
 
