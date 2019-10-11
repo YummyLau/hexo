@@ -187,6 +187,51 @@ tags: [Android经验]
 	    return false;
 	}
 	```
+	
+* **如何仿蘑菇街/马蜂窝Viewpager装载图片之后切换时动态变更高度**
+
+	imageViewPager 为普通的 Viewpager 对象
+	
+	imageListInfo为存放图片信息的list，imageShowHeight为业务需要显示高度，通过切换时动态计算调整
+	
+	```
+	        imageViewPager.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+	            @Override
+	            public void onGlobalLayout() {
+	                imageViewPager.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+	                //根据viewpager的高度，拉伸显示图片的宽度调整高度。
+	                ViewGroup.LayoutParams layoutParams = imageViewPager.getLayoutParams();
+	                layoutParams.height = imageListInfo.imageShowHeight[0];
+	                imageViewPager.setLayoutParams(layoutParams);
+	            }
+	        });
+	        imageViewPager.setAdapter(imagePagerAdapter);
+	        imageViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+	            @Override
+	            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+	                if (position == imageListInfo.getImageListSize() - 1) {
+	                    return;
+	                }
+	                int height = (int) (imageListInfo.imageShowHeight[position] * (1 - positionOffset) + imageListInfo.imageShowHeight[position + 1] * positionOffset);
+	                ViewGroup.LayoutParams params = imageViewPager.getLayoutParams();
+	                params.height = height;
+	                imageViewPager.setLayoutParams(params);
+	            }
+	
+	            @Override
+	            public void onPageSelected(int position) {
+	                if (!clickListBySelf) {
+	                    toSelectIndex(imageListInfo.selected, position);
+	                }
+	            }
+	
+	            @Override
+	            public void onPageScrollStateChanged(int state) {
+	
+	            }
+	        });
+	```
+
 
 #### AppBarLayout
 
@@ -239,6 +284,75 @@ tags: [Android经验]
 * **针对 onSingleTapUp 和 onSIngleTapConfirmed 的使用区别**
 
 	前者在按下并抬起时发生，后者有一个附加条件时Android会确保点击之后在短时间内没有再次点击才会触发。常用于如果需要监听单击和双击事件。
+
+* **如何使用layer-list画三角形**
+
+	```
+	<layer-list xmlns:android="http://schemas.android.com/apk/res/android" >
+	//左
+    <item>
+        <rotate
+            android:fromDegrees="45"
+            android:pivotX="85%"
+            android:pivotY="135%">
+            <shape android:shape="rectangle">
+                <size
+                    android:width="16dp"
+                    android:height="16dp" />
+                <solid android:color="#7d72ff" />
+            </shape>
+        </rotate>
+
+    </item>
+    
+    //右
+    <item>
+        <rotate
+            android:fromDegrees="45"
+            android:pivotX="15%"
+            android:pivotY="-35%">
+            <shape android:shape="rectangle">
+                <size
+                    android:width="16dp"
+                    android:height="16dp" />
+                <solid android:color="#7d72ff" />
+            </shape>
+        </rotate>
+
+    </item>
+    
+    //上/正
+    <item>
+        <rotate
+            android:fromDegrees="45"
+            android:pivotX="-40%"
+            android:pivotY="80%">
+            <shape android:shape="rectangle">
+                <size
+                    android:width="16dp"
+                    android:height="16dp"/>
+                <solid android:color="#7d72ff"/>
+            </shape>
+        </rotate>
+    </item>
+    
+    //下
+    <item>
+        <rotate
+            android:fromDegrees="45"
+            android:pivotX="135%"
+            android:pivotY="15%">
+            <shape android:shape="rectangle">
+                <size
+                    android:width="16dp"
+                    android:height="16dp"/>
+                <solid android:color="#7d72ff"/>
+            </shape>
+        </rotate>
+    </item>
+</layer-list>
+	
+	```
 	
 
 ## Service
