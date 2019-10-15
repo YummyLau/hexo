@@ -33,13 +33,13 @@ tags: [项目,总结,Android]
 
 #### X5JsWebview模块类图/流程图
 
-<img src="../pics/20191015/2_1.png"  alt="类图" align=center />
+<img src="https://github.com/YummyLau/hexo/blob/master/source/pics/20191015/2_1.png?raw=true"  alt="类图" align=center />
 
-<img src="../pics/20191015/2_2.png"  alt="流程图" align=center />
+<img src="https://github.com/YummyLau/hexo/blob/master/source/pics/20191015/2_2.png?raw=true"  alt="流程图" align=center />
 
 #### 一次完整的Js-Native 交互流程
 
-<img src="../pics/20191015/2_3.png"  alt="交互流程" align=center />
+<img src="https://github.com/YummyLau/hexo/blob/master/source/pics/20191015/2_3.png?raw=true"  alt="交互流程" align=center />
 
 ### 思考
 
