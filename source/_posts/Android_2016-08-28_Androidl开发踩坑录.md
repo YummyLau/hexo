@@ -264,10 +264,9 @@ tags: [Android经验]
 #### Edittext
 
 * **edittext未能响应onClickListener事件**
-
+	
 	`Edittext`监听未获取焦点的Edittext的点击事件，第一次点击触发OnFocusChangeListener，在获取焦点的情况下才能响应onClickListener
 	
-
 #### 其他view
 
 * **使用listview或gridview的处理item的state_selected事件是无效的**
@@ -477,6 +476,22 @@ tags: [Android经验]
 	
 	可参考我另一篇文章 [对线上项目拉起应用场景的思考总结](http://yummylau.com/2019/06/26/Adnroid_2019-06-06_%E5%AF%B9%E7%BA%BF%E4%B8%8A%E9%A1%B9%E7%9B%AE%E6%8B%89%E8%B5%B7%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF%E7%9A%84%E6%80%9D%E8%80%83%E6%80%BB%E7%BB%93/)
 	
+* **9.0 android 支持明文连接（Http）**
+
+   Android 9（API级别28）开始，默认情况下禁用明文支持
+   
+	```
+	<?xml version="1.0" encoding="utf-8"?>
+	<manifest ...>
+	    <uses-permission android:name="android.permission.INTERNET" />
+	    <application
+	        ...
+	        android:usesCleartextTraffic="true"
+	        ...>
+	        ...
+	    </application>
+	</manifest>
+	```
 
 # 线程
 
