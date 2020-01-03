@@ -44,14 +44,13 @@ tags: [Android经验]
 	* [如何解决MIUI系统后台无法 toast 的问题](#6-2)
 	* [如何解决关闭通知栏权限无法弹出 toast 的问题](#6-3)
 	* [如何适配 vivo 等双面屏幕](#6-4)
-	* [如何解决华为设备产生太多 broadcast 导致crash的问题](#6-5)
+	* [如何解决华为设备产生太多 broadcast 导致crash的问题](#6-5)      
   	* [各种通知栏的适配方案](#6-6)
 	* [解决针对魅族推送内容限制的问题](#6-7)
 	* [解决从系统安装起安装应用后启动，Home 隐藏后 Launcher 重复启动的问题](#6-8)
  	* [针对有launcher做为Activity的应用，在完全没有启动下收到第三方推送（小米，华为，魅族）/分享拉起的注意事项](#6-9)
  	* [针对 App 多场景拉起场景下的场景判断分析](#6-10)
-	* [9.0 android 支持明文连接（Http）](#6-11)
-
+	* [9.0 android 支持明文连接（Http](#6-11)
 * [编译构建篇](#7)
  	* [travis-ci 高版本androidO编译遇到 license 没通过编译失败的解决方案](#7-1)
  	* [Dalvik 支持的 android 版本下进行分包执行会有一些限制](#7-2)
@@ -61,11 +60,9 @@ tags: [Android经验]
  	* [版本构建出现 Gradle sync failed: Cannot choose between the following configurations of project](#7-6)
  	* [gradle 配置本地离线包](#7-7)
  	* [解决kvm/jvm 编译时 -classpath 遇到的分割及空格的问题](#7-8)
-
 * [版本控制篇](#8)
  	* [git 修改 commit 记录](#8-1)
  	* [解决git ignore 文件不生效的问题](#8-2)
-
 * [其他](#9)
 	* [ExoPlayer在接听电话之后会导致原来设置的 Source 中静音状态消失了导致可能返回 app 续播的时候视频突然有声音](#9-1)
 	* [AndroidStudio 提示 Please select Android SDK](#9-2)
