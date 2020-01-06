@@ -30,6 +30,9 @@ tags: [Android经验]
 	* [解决5.0以上Button自带阴影效果的方案](#1-15)
 	* [针对 onSingleTapUp 和 onSIngleTapConfirmed 的使用区别](#1-16)
 	* [如何使用layer-list画三角形](#1-17)
+	* [关于属性动画中旋转 View 时部分机型出现 View 闪烁的解决方案](#1-18)
+	* [关于 ConstraintLayout 的代码布局下的注意事项](#1-19)
+	* [TextView 在 6.0 版本下设置单行尾部缩略的坑](#1-20)
 * [服务篇](#2)
 	* [后台手动清理应用之后，service中启动的notifications并没有消失的解决方案](#2-1)
 * [线程篇](#3)
@@ -66,7 +69,8 @@ tags: [Android经验]
 * [其他](#9)
 	* [ExoPlayer在接听电话之后会导致原来设置的 Source 中静音状态消失了导致可能返回 app 续播的时候视频突然有声音](#9-1)
 	* [AndroidStudio 提示 Please select Android SDK](#9-2)
-	* [关于Java中字符与字节的编码关系认识](#9-3)
+	* [关于 Java 中字符与字节的编码关系认识](#9-3)
+	* [关于 emoji 编码的长度计算问题](#9-4)
 
 
 <h3 id="1"><<视图篇>></h3>
@@ -372,6 +376,20 @@ tags: [Android经验]
 	
 	```
 
+* <h4 id="1-18"> 关于属性动画中旋转 View 时部分机型出现 View 闪烁的解决方案 </h4>
+	在大神 app 信息流快捷评论模块中，在交付快捷评论动画的时候发现，使用属性动画实现的抖动效果在部分机型上出现闪烁。而我们的实现抖动效果是通过 `View.ROTATION` 来实现的。经过研究，部分机型因为硬件加速的原因导致的。为动画 view 进行以下设置
+	
+	```
+	view.setLayerType(View.LAYER_TYPE_HARDWARE,null);
+	```
+
+* <h4 id="1-19"> 关于 ConstraintLayout 的代码布局下的注意事项 </h4>
+	不同于其他 ViewGroup 控制子 View 的排版，ConstraintLayout 需要构建 `ConstraintSet` 对象来粘合。 在手动添加子 View 的场景下，可以通过 `ConstraintSet#clone(ConstraintLayout constraintLayout)` 来克隆当前已有 ConstraintLayout 的排版信息，然后最后调用 `ConstraintSet#applyTo(ConstraintLayout constraintLayout)` 确认最终的排版信息。
+
+* <h4 id="1-20"> TextView 在 6.0 版本下设置单行尾部缩略的坑 </h4>
+	在大神信息流中，有一些卡片信息需要设置单行缩略。在 MTL 兼容测试过程中发现有一些机型显示异常，经过归纳及校验，这部分机型的版本都是 < 6.0。 通过在 stackoverflow 也找到了相同的问题场景 [text ellipsize behavior in android version < 6.0](https://stackoverflow.com/questions/42524277/text-ellipsize-behavior-in-android-version-6-0) . 针对这部分版本的手机，我们需要在设置单行的时候把 `android:maxLines="1"` 改成 `android:singleLine="true"`。即使 IDE 提示该 API 已经过期了！
+
+
 <h3 id="2"><<服务篇>></h3>
 
 * <h4 id="2-1"> 后台手动清理应用之后，service中启动的notifications并没有消失的解决方案</h4>
@@ -459,8 +477,8 @@ tags: [Android经验]
 	由于谷歌把 Toast 设置为系统消息权限，可以参考 [Android关闭通知消息权限无法弹出Toast的解决方案](http://w4lle.com/2016/03/27/Android%E5%85%B3%E9%97%AD%E9%80%9A%E7%9F%A5%E6%B6%88%E6%81%AF%E6%9D%83%E9%99%90%E6%97%A0%E6%B3%95%E5%BC%B9%E5%87%BAToast%E7%9A%84%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/) 维护自己的消息队列.
 	
 * <h4 id="6-4"> 如何适配 vivo 等双面屏幕</h4>
+
 	在 AndroidManifest.xml 中声明一下 meta-data
-	
 	```
 	<meta-data
 	android:name="andriod.max_aspect" android:value="ratio_float"/>
@@ -507,28 +525,28 @@ tags: [Android经验]
 	* onCreate中优先拦截 intent 判断拉起参数，如果有拉起参数则直接进入主页面B，intent交付给主页面B处理
 	* 部分场景下，比如第三方消息推送，华为和小米拉起闪屏或 launcher intent无法区分，针对该做法是，限定进入闪屏/launcher的逻辑,剩余场景统一进入主页面B
 	
-		```
-   if (后端控制是否需要进入特殊场景页面) {
-            boolean goToA = false;
-            if (getIntent() != null) {
-                String action = getIntent().getAction();
-                Set<String> category = getIntent().getCategories();
-                if (TextUtils.equals(action, "android.intent.action.MAIN")) {
-                    if (category != null && category.contains("android.intent.category.LAUNCHER")) {
-                        Intent intent = new Intent(this, 页面A.class);
-                        intent.setData(getIntent().getData());
-                        startActivity(intent);
-                        goToA = true;
-                    }
+	```
+if (后端控制是否需要进入特殊场景页面) {
+        boolean goToA = false;
+        if (getIntent() != null) {
+            String action = getIntent().getAction();
+            Set<String> category = getIntent().getCategories();
+            if (TextUtils.equals(action, "android.intent.action.MAIN")) {
+                if (category != null && category.contains("android.intent.category.LAUNCHER")) {
+                    Intent intent = new Intent(this, 页面A.class);
+                    intent.setData(getIntent().getData());
+                    startActivity(intent);
+                    goToA = true;
                 }
             }
-            if (! goToA) {
-                goToMainActivity();
-            }
-        } else {
+        }
+        if (! goToA) {
             goToMainActivity();
         }
-		```
+    } else {
+        goToMainActivity();
+    }
+	```
 
 * <h4 id="6-10"> 针对 App 多场景拉起场景下的场景判断分析</h4>
 	
@@ -643,11 +661,8 @@ tags: [Android经验]
 
 	```
 	git reset --soft HEAD^
-	```
 	
 	撤销当前的commit，如果只是修改提示，则使用
-	
-	```
 	git commit --amend
 	```
 
@@ -669,7 +684,7 @@ tags: [Android经验]
 
 	解决手段： File->Project Structure中修改Build tools version
 
-* <h4 id="9-3"> 关于Java中字符与字节的编码关系认识 </h4>
+* <h4 id="9-3"> 关于 Java 中字符与字节的编码关系认识 </h4>
 
 	```
 	unicode编码下1个中文字符或英文字符都占2个字节；
@@ -687,3 +702,5 @@ tags: [Android经验]
 	总结：1个中文字符或英文字符都占4个字节
 ```
 
+* <h4 id="9-4"> 关于 emoji 编码的长度计算问题 </h4>
+	重点熟悉下 Unicode 编码标识的 emoji 下针对多平面 emoji 的拆分逻辑。[可参考这篇文章](http://objcer.com/2017/07/20/explore-emoji-length/)
