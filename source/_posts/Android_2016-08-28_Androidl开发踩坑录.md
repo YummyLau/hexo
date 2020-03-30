@@ -1,7 +1,7 @@
 ---
 title: Android开发踩坑经验贴(持续更新...)
 layout: post
-date: 2020-01-03
+date: 2020-03-30
 comments: true
 categories: Android
 tags: [Android经验]
@@ -63,6 +63,7 @@ tags: [Android经验]
  	* [版本构建出现 Gradle sync failed: Cannot choose between the following configurations of project](#7-6)
  	* [gradle 配置本地离线包](#7-7)
  	* [解决kvm/jvm 编译时 -classpath 遇到的分割及空格的问题](#7-8)
+ 	* [databinding NoSuchMethodError with buildTool 3.4.0](#7-9)
 * [版本控制篇](#8)
  	* [git 修改 commit 记录](#8-1)
  	* [解决git ignore 文件不生效的问题](#8-2)
@@ -653,7 +654,25 @@ if (后端控制是否需要进入特殊场景页面) {
 	linux/mac OS 上使用 “：” 分割多个classpath路径，window使用 “；” 分割。
 	
 	如果linux/mac OS 路径存在空格，暂时避免，使用多种方式尝试未果=。=。
-
+	
+* <h4 id="7-9"> databinding NoSuchMethodError with buildTool 3.4.0</h4>
+	项目从 gradle 3.1 升级到 3.4.0 并使用了 androidx 之后，发现编译失败了。来项目就是使用 databinding，编译出现了
+	
+	```
+	java.lang.NoSuchMethodError: No direct method <init>
+	(Landroidx/databinding/DataBindingComponent;Landroid/view/View;I)V in 
+	class Landroidx/databinding/ViewDataBinding; or its super classes
+	(declaration of 'androidx.databinding.ViewDataBinding'
+	```
+	原因我们使用的 aar 库中使用了旧版本 gradle 编译，新版本主端 gradle 升级了，导致旧的 ViewDataBinding 构造器签名匹配不上新版 androidx.databinding.ViewDataBinding 的签名。
+	
+	```
+	//旧版本
+	protected ViewDataBinding(DataBindingComponent bindingComponent, View root, int localFieldCount)
+	//新版本
+	protected ViewDataBinding(Object bindingComponent, View root, int localFieldCount)
+	```
+	幸运的是，3.4.1已经修复了。更改 3.4.0 -> 3.4.1 就可以了。
 
 <h3 id="8"><<版本控制篇>></h3>
 	
