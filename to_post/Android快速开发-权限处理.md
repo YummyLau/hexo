@@ -71,32 +71,24 @@ Context.getSystemService(Context.APP_OPS_SERVICE)
 
 
 权限通过组别来申请
-通过`Activity#checkSelfPermission`来检测权限  
-通过`Activity#requestPermissions`来请求权限  
-如果第一次用户没有授权，则会回调`Activity#onRequestPermissionsResult`返回用于操作结果  
-如果用于设置不再询问则选线对话框不会再弹出来，所有当用户检测到没有授权某一权限时，在请求权限之前需要弹出一个对话框告诉用户只有授权该权限才能支持某个功能。  
-shouldShowRequestPermissionRationale方法
 
+* 通过`Activity#checkSelfPermission`来检测权限  
+* 通过`Activity#requestPermissions`来请求权限  
+	* 如果第一次用户没有授权，则会回调`Activity#onRequestPermissionsResult`返回用于操作结果  
+	* 如果用于设置不再询问则选线对话框不会再弹出来，所有当用户检测到没有授权某一权限时，在请求权限之前需要弹出一个对话框告诉用户只有授权该权限才能支持某个功能。  
+* shouldShowRequestPermissionRationale 用于判断用户是否勾选了 “不再提醒”
 
-v4下的三个函数一直用于替换activity的三个对应函数
+v4包下的三个函数用于替换activity的三个对应函数
 
-- ContextCompat.checkSelfPermission()  
-无论在哪个版本，该函数都会返回PERMISSION_GRANTED 或者 PERMISSION_DENIED
+* ContextCompat.checkSelfPermission(),无论在哪个版本，该函数都会返回PERMISSION_GRANTED 或者 PERMISSION_DENIED
+* ActivityCompat.requestPermissions()在6.0以前版本调用，则OnRequestPermissionsResultCallback will be suddenly called with correct PERMISSION_GRANTED or PERMISSION_DENIED result.
+* ActivityCompat.shouldShowRequestPermissionRationale()在6.0之前一直返回 flase
 
-- ActivityCompat.requestPermissions()在6.0以前版本调用，则OnRequestPermissionsResultCallback will be suddenly called with correct PERMISSION_GRANTED or PERMISSION_DENIED result.
+### >=Android6.0 的终极方案
 
-- ActivityCompat.shouldShowRequestPermissionRationale()在6.0之前一直返回flase
+> 善于利用别人的轮子来提升效率，才是编程的最佳手段。
 
-
-
-从Android源码学到的操作
-AppOpsManager $ PackageOps在读取parcelable列表的时候的实现
-
-
-
-
-```
-
+一开始，我们维护了一套针对不同 context 场景的权限请求，后面发现处理 Result 的回调的时候很麻烦。后来发现 [RxPermissions](https://github.com/tbruyelle/RxPermissions) 处理得非常完美。结合我们自己的项目使用场景，基于 RxPermissions 基础封装我们自己的权限库，针对 6.0 以上的版本进行权限动态判断。
 
 
 
