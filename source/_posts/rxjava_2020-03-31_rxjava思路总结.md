@@ -76,9 +76,39 @@ observableOnSubscribe.subscribe(operatorN.apply( ... ( operator3.apply( operator
 
 **基于 lift 变换的线程切换 subscribeOn 和 observeOn**
 
-* *subscribeOn* 线程切换的逻辑为 **“通过 scheduler 把 source.subscribe(observer)  进行线程切换”**。*source* 为上游 **Observable** 对象，则 *subscribeOn* 最终作用在源 *observableOnSubscribe.subscribe*。只需要指定一次，且以第一次指定为有效切换。
+* *subscribeOn* 线程切换的逻辑为 **“通过 scheduler 把 source.subscribe(observer)  进行线程切换”**。核心代码如下：
 
-* *observerOn* 线程切换的逻辑为 **“通过 scheduler 把 operator.apply(observer) 进行线程切换”**。则下游提供的 *observer* 会被上游的 *observable* 所订阅，变换。所以每一次 *observerOn* 指定的是下游的线程环境。
+	```
+	final SubscribeOnObserver<T> parent = new SubscribeOnObserver<T>(observer);
+	scheduler.scheduleDirect(new SubscribeTask(parent))
+	//SubscribeTask 本质是一个 runnable
+	final class SubscribeTask implements Runnable {
+	    private final SubscribeOnObserver<T> parent;
+	
+	    SubscribeTask(SubscribeOnObserver<T> parent) {
+	        this.parent = parent;
+	    }
+	
+	    @Override
+	    public void run() {
+	        source.subscribe(parent);
+	    }
+	}
+	```
+*source* 为上游 **Observable** 对象，所以每一次 *subscribeOn* 的调用都作用到其上游上，并最终调用源 *observableOnSubscribe.subscribe*。所有如果出现多次调用 *subscribeOn* ，实际上只有最上游的调用才是决定 *observableOnSubscribe.subscribe* 最终的线程环境。
+
+
+
+* *observerOn* 线程切换的逻辑为 **“通过 scheduler 把 operator.apply(observer) 进行线程切换”**。核心代码如下：
+
+	```
+	source.subscribe(new ObserveOnObserver<T>(observer, w, delayError, bufferSize))
+	//ObserveOnObserver 本质是一个 runable ,队列 和 观察者, Observer 的消费行为队列化并交给 scheduler 处理.
+	static final class ObserveOnObserver<T> extends BasicIntQueueDisposable<T> implements Observer<T>, Runnable 
+	```
+
+	则下游 *subscribe* 触发时, *observer* 获取到的是下游的观察者,而 *observer* 的行为会被 *scheduler* 进行线程调度.故 
+*observerOn* 的线程切换会影响下游的线程环境。
 
 上述 N 次变换有
 
