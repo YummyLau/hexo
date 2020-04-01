@@ -1,6 +1,6 @@
 ---
-title: Android快速开发-权限处理
-date: 2017-08-15 15:52:00
+title: 基于 RxPermission 构建权限交互
+date: 2020-04-01 18:24:00
 comments: true
 categories: Android
 tags: [快速开发]
@@ -73,10 +73,15 @@ Context.getSystemService(Context.APP_OPS_SERVICE)
 权限通过组别来申请
 
 * 通过`Activity#checkSelfPermission`来检测权限  
-* 通过`Activity#requestPermissions`来请求权限  
-	* 如果第一次用户没有授权，则会回调`Activity#onRequestPermissionsResult`返回用于操作结果  
-	* 如果用于设置不再询问则选线对话框不会再弹出来，所有当用户检测到没有授权某一权限时，在请求权限之前需要弹出一个对话框告诉用户只有授权该权限才能支持某个功能。  
-* shouldShowRequestPermissionRationale 用于判断用户是否勾选了 “不再提醒”
+* 通过`Activity#requestPermissions`来请求权限，并通过 `Activity#onRequestPermissionsResult` 回调操作结果
+* 通过 *shouldShowRequestPermissionRationale* 是一个提升用户体验的信息，字面上的意思是 **“是否应该显示请求权限的根本原因”**。
+	* 在 6.0 版本之后，用户第一次请求权限，系统弹窗是没有 *checkbox* 可以勾选不再询问，所以 *shouldShowRequestPermissionRationale*  的值自然是 false；
+	* 如果用户第一次拒绝权限之后，那么往后系统弹窗则会出现 *checkbox* 可以勾选不再询问。如果用户请求权限之后收到 onRequestPermissionsResult 反馈时，*shouldShowRequestPermissionRationale = true* 则意味着用户曾经拒绝权限且勾选了不再询问，此时你应该弹窗告诉用户 **“为什么我们需要你授权并引导用户去授权”**。
+
+权限申请结果
+
+* PackageManager.PERMISSION_GRANTED = 0 表示通过
+* PackageManager.PERMISSION_DENIED = 0 表示未通过
 
 v4包下的三个函数用于替换activity的三个对应函数
 
@@ -90,9 +95,24 @@ v4包下的三个函数用于替换activity的三个对应函数
 
 一开始，我们维护了一套针对不同 context 场景的权限请求，后面发现处理 Result 的回调的时候很麻烦。后来发现 [RxPermissions](https://github.com/tbruyelle/RxPermissions) 处理得非常完美。结合我们自己的项目使用场景，基于 RxPermissions 基础封装我们自己的权限库，针对 6.0 以上的版本进行权限动态判断。
 
+关于 RxPermissions 的原理解析,可以参考 [系统源码解析——RxPermissions]()
 
+参考项目维护的旧权限请求模块,我们希望对 RxPermissions 进一步改进,基于 **RxPermissions** 封装了 PermissionManager用于代理 *rxPermissions* 功能,并收集请求返回的 *Disposable* 对象,统一解绑避免内存泄漏. 同时针对项目一次/多次请求权限的场景,封装了 **ResultCall** 和 **MultiResultCall** 用于简化一次/多次请求结果的回调。
 
+则从 **RxPermissions** 扩展的类图结构变为
+
+<img src="https://raw.githubusercontent.com/YummyLau/hexo/master/source/pics/20200401/rxpermission_3.png" align=center  />
+
+时序图结构更改为
+
+<img src="https://raw.githubusercontent.com/YummyLau/hexo/master/source/pics/20200401/rxpermission_4.png" align=center  />
+
+目前整套流程稳定服务于项目场景。
 
 
 # 参考文章
-[Everything every Android Android Developer must konw about new Android's Runtime Permission](https://inthecheesefactory.com/blog/things-you-need-to-know-about-android-m-permission-developer-edition/en)
+* [Everything every Android Android Developer must konw about new Android's Runtime Permission](https://inthecheesefactory.com/blog/things-you-need-to-know-about-android-m-permission-developer-edition/en)
+* [RxJava](https://github.com/ReactiveX/RxJava)
+* [RxPermission](https://github.com/vanniktech/RxPermission)
+
+
