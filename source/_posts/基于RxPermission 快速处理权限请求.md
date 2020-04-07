@@ -43,32 +43,59 @@ Android 系统权限分为`正常权限`和`危险权限`
 | CHANGE_NETWORK_STATE | 允许程序修改网络连接状态 |
 | CHANGE_WIFI_MULTICAST_STATE | 允许程序进入多播状态 |
 | CHANGE_WIFI_STATE | 允许程序修改Wifi连接状态|
-| DISABLE_KEYGUARD | 允许应用程序访问额外的位置提供命令 |
-| EXPAND_STATUS_BAR | 允许应用程序访问额外的位置提供命令 |
-| GET_PACKAGE_SIZE | 允许应用程序访问额外的位置提供命令 |
-| INSTALL_SHORTCUT | 允许应用程序访问额外的位置提供命令 |
-| INTERNET | 允许应用程序访问额外的位置提供命令 |
-| KILL_BACKGROUND_PROCESSES | 允许应用程序访问额外的位置提供命令 |
-| MODIFY_AUDIO_SETTINGS | 允许应用程序访问额外的位置提供命令 |
-| NFC | 允许应用程序访问额外的位置提供命令 |
-| READ_SYNC_SETTINGS | 允许应用程序访问额外的位置提供命令 |
-| READ_SYNC_STATS | 允许应用程序访问额外的位置提供命令 |
-| RECEIVE_BOOT_COMPLETED| 允许应用程序访问额外的位置提供命令 |
-| REORDER_TASKS| 允许应用程序访问额外的位置提供命令 |
-| REQUEST_IGNORE_BATTERY_OPTIMIZATIONS| 允许应用程序访问额外的位置提供命令 |
-| REQUEST_INSTALL_PACKAGES| 允许应用程序访问额外的位置提供命令 |
-| SET_ALARM| 允许应用程序访问额外的位置提供命令 |
-| SET_TIME_ZONE| 允许应用程序访问额外的位置提供命令 |
-| SET_WALLPAPER| 允许应用程序访问额外的位置提供命令 |
-| SET_WALLPAPER_HINTS |允许应用程序访问额外的位置提供命令 |
-| TRANSMIT_IR| 允许应用程序访问额外的位置提供命令 |
-| UNINSTALL_SHORTCUT| 允许应用程序访问额外的位置提供命令 |
-| VIBRATE| 允许应用程序访问额外的位置提供命令 |
-| WAKE_LOCK| 允许应用程序访问额外的位置提供命令 |
-| SET_WALLPAPER| 允许应用程序访问额外的位置提供命令 |
-| WRITE_SYNC_SETTINGS| 允许应用程序访问额外的位置提供命令 |
+| DISABLE_KEYGUARD | 允许程序禁用键盘锁 |
+| EXPAND_STATUS_BAR | 允许一个程序扩展收缩在状态栏 |
+| GET_PACKAGE_SIZE | 允许一个程序获取任何package占用空间容量|
+| INTERNET | 允许程序打开网络套接字 |
+| KILL_BACKGROUND_PROCESSES | 允许程序调用killBackgroundProcesses(String) 方法结束后台进程 |
+| MODIFY_AUDIO_SETTINGS | 允许程序修改全局音频设置 |
+| NFC | 允许程序执行NFC近距离通讯操作，用于移动支持 |
+| READ_SYNC_SETTINGS | 允许程序读取同步设置 |
+| READ_SYNC_STATS | 允许程序读取同步状态 |
+| RECEIVE_BOOT_COMPLETED| 允许一个程序接收到 ACTION_BOOT_COMPLETED广播在系统完成启动 |
+| REORDER_TASKS| 允许程序改变Z轴排列任务 |
+| INSTALL_PACKAGES| 允许程序安装应用 |
+| SET_ALARM| 设置闹铃提醒 |
+| SET_TIME_ZONE| 设置系统时区 |
+| SET_WALLPAPER| 设置桌面壁纸 |
+| SET_WALLPAPER_HINTS |设置壁纸建议 |
+| VIBRATE| 允许访问振动设备 |
+| WAKE_LOCK| 允许使用PowerManager的 WakeLocks保持进程在休眠时从屏幕消失 |
+| WRITE_SYNC_SETTINGS| 写入Google在线同步设置 |
 
-除此之外，被视为“危险”权限，因此需要用户明确向您的应用授予相应访问权限。
+除此之外，被视为“危险”权限，因此需要用户明确向您的应用授予相应访问权限。如果设备运行的是 Android6.0（API级别23），并且应用 targetSdkVersion 是 23 或更高版本，则当用户请求危险权限是系统会发生以下行为：
+
+* 如果应用请求其清单中列出的危险权限，而应用目前在权限组中没有任何权限，则系统会向用户显示一个对话框，描述应用要访问的权限组。对话框不描述该组内的具体权限。例如，如果应用请求 `READ_CONTACTS` 权限，系统对话框只说明该应用需要访问设备的联系信息。如果用户批准，系统将向应用授予其请求的权限。
+* 如果应用请求其清单中列出的危险权限，而应用在同一权限组中已有另一项危险权限，则系统会立即授予该权限，而无需与用户进行任何交互。例如，如果某应用已经请求并且被授予了 `READ_CONTACTS` 权限，然后它又请求 `WRITE_CONTACTS`，系统将立即授予该权限。
+
+危险权限和权限组
+
+| 权限名组| 权限 |权限说明 |
+| --------------- | --------------- |---------------|
+| CALENDAR | READ_CALENDAR| 日历
+| | WRITE_CALENDAR | 
+| CAMERA | CAMERA | 摄像头
+| CONTACTS | READ_CONTACTS | 联系人
+| | WRITE_CONTACTS | 
+| | GET_ACCOUNTS | 
+| LOCATION | ACCESS_FINE_LOCATION | 定位
+| | ACCESS_COARSE_LOCATION | 
+| MICROPHONE | RECORD_AUDIO |
+| PHONE | READ_PHONE_STATE| 手机
+| | CALL_PHONE |
+| | READ_CALL_LOG |
+| | WRITE_CALL_LOG |
+| | ADD_VOICEMAIL |
+| | USE_SIP |
+| | PROCESS_OUTGOING_CALLS |
+| SENSORS | BODY_SENSORS | 传感器
+| SMS | SEND_SMS | 短信
+| | RECEIVE_SMS | 
+| | READ_SMS | 
+| | RECEIVE_WAP_PUSH |
+| | RECEIVE_MMS |
+| STORAGE| READ_EXTERNAL_STORAGE |存储
+| | WRITE_EXTERNAL_STORAGE |
 
 权限通过组别来申请
 
