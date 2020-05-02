@@ -1,5 +1,5 @@
 ---
-title: Android 补丁技术总结 之 热替换 
+title: Android 补丁技术学习总结(二) 类热替换 
 date: 2020-04-09 05:45:34
 comments: true
 categories: Android

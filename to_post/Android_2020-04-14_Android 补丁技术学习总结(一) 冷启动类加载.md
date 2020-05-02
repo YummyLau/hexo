@@ -1,5 +1,5 @@
 ---
-title: Android 补丁技术总结 之 冷启动类加载
+title: Android 补丁技术学习总结(一) 冷启动类加载
 date: 2020-04-14 15:17:34
 comments: true
 categories: Android
