@@ -214,11 +214,3 @@ public enum ReportStep {
 ```
 
 在补丁流程的每一个节点都进行 Log 日志输出，除了输出到 IDE，“调试界面”外，还需要上传到每个项目的日志服务器中，以便分析线上补丁流程的具体情况。
-
-**关联文章**
-
-* [Android 补丁技术学习总结(一) 冷启动类加载](http://yummylau.com/2020/05/02/Android_2020-04-14_Android%20%E8%A1%A5%E4%B8%81%E6%8A%80%E6%9C%AF%E5%AD%A6%E4%B9%A0%E6%80%BB%E7%BB%93(%E4%B8%80)%20%E5%86%B7%E5%90%AF%E5%8A%A8%E7%B1%BB%E5%8A%A0%E8%BD%BD/)
-* [Android 补丁技术学习总结(二) 类热替换](http://yummylau.com/2020/05/02/Android_2020-04-09_Android%20%E8%A1%A5%E4%B8%81%E6%8A%80%E6%9C%AF%E5%AD%A6%E4%B9%A0%E6%80%BB%E7%BB%93(%E4%BA%8C)%20%E7%B1%BB%E7%83%AD%E6%9B%BF%E6%8D%A2%20/)
-* [Android 补丁技术学习总结(三) 资源修复](http://yummylau.com/2020/05/02/Android_2020-04-20_Android%20%E8%A1%A5%E4%B8%81%E6%8A%80%E6%9C%AF%E5%AD%A6%E4%B9%A0%E6%80%BB%E7%BB%93(%E4%B8%89)%20%E8%B5%84%E6%BA%90%E4%BF%AE%E5%A4%8D/)
-* [Android 补丁技术学习总结(四) so修复](http://yummylau.com/2020/05/02/Android_2020-04-26_Android%20%E8%A1%A5%E4%B8%81%E6%8A%80%E6%9C%AF%E5%AD%A6%E4%B9%A0%E6%80%BB%E7%BB%93(%E5%9B%9B)%20so%E4%BF%AE%E5%A4%8D/)
-* [Android 补丁技术学习总结(五) 技术选型及实践流程](http://yummylau.com/2020/05/02/Android_2020-04-26_Android%20%E8%A1%A5%E4%B8%81%E6%8A%80%E6%9C%AF%E5%AD%A6%E4%B9%A0%E6%80%BB%E7%BB%93(%E4%BA%94)%20%E6%8A%80%E6%9C%AF%E9%80%89%E5%9E%8B%E5%8F%8A%E5%AE%9E%E8%B7%B5%E6%B5%81%E7%A8%8B/)
