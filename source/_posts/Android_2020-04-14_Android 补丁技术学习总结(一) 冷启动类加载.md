@@ -1,8 +1,8 @@
 ---
 title: Android 补丁技术学习总结(一) 冷启动类加载
-date: 2020-04-14 15:17:34
+date: 2020-05-02 18:00:01
 comments: true
-categories: Android
+categories: Android进阶
 tags: [热修复]
 ---
 

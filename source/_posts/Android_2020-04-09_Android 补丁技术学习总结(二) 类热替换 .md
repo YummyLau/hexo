@@ -1,8 +1,8 @@
 ---
 title: Android 补丁技术学习总结(二) 类热替换 
-date: 2020-04-09 05:45:34
+date: 2020-05-02 18:00:02
 comments: true
-categories: Android
+categories: Android进阶
 tags: [热修复]
 ---
 
