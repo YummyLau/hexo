@@ -15,7 +15,8 @@ tags: [Android经验]
 	* [如何理解非主线程可以更新UI](#1-1)
 	* [dialogFragment 全屏时左右留空的解决方案](#1-2)
 	* [dialogFragment 全屏时状态栏出现黑色布局的解决方案](#1-3)
-	* [dialogFragment 全屏时状态栏出现黑色布局的解决方案](#1-3)
+	* [多个fragment 切换重叠的解决方案](#1-21)
+	* [多个fragment 保存状态时可能出现 TransactionTooLargeException 的解决方案](#1-22)
 	* [recyclerview 调用 notifyItemRemoved 方法移除某个 Item 之后因为引用 position 引起 crash 的原因](#1-4)
 	* [recyclerview 局部刷新Item时会因为默认动画导致闪烁的解决方案](#1-5)
 	* [recyclerview 中的 item 出现莫名的偏移滚动](#1-6)
@@ -35,6 +36,7 @@ tags: [Android经验]
 	* [TextView 在 6.0 版本下设置单行尾部缩略的坑](#1-20)
 * [服务篇](#2)
 	* [后台手动清理应用之后，service中启动的notifications并没有消失的解决方案](#2-1)
+	* [全局的Context使用更为优雅的获取方案](#2-2)
 * [线程篇](#3)
  	* [建议新起线程不要随便调用网络请求，一般的newThread没有looper队列，参考handlerThread](#3-1)
 * [网络篇](#4)
@@ -53,7 +55,8 @@ tags: [Android经验]
 	* [解决从系统安装起安装应用后启动，Home 隐藏后 Launcher 重复启动的问题](#6-8)
  	* [针对有launcher做为Activity的应用，在完全没有启动下收到第三方推送（小米，华为，魅族）/分享拉起的注意事项](#6-9)
  	* [针对 App 多场景拉起场景下的场景判断分析](#6-10)
-	* [9.0 android 支持明文连接（Http](#6-11)
+ 	* [8.0 部分 ROM 出现 Only fullscreen opaque activities can request orientation 的解决方案](#6-12)
+	* [9.0 android 支持明文连接（Http)](#6-11)
 * [编译构建篇](#7)
  	* [travis-ci 高版本androidO编译遇到 license 没通过编译失败的解决方案](#7-1)
  	* [Dalvik 支持的 android 版本下进行分包执行会有一些限制](#7-2)
@@ -64,6 +67,7 @@ tags: [Android经验]
  	* [gradle 配置本地离线包](#7-7)
  	* [解决kvm/jvm 编译时 -classpath 遇到的分割及空格的问题](#7-8)
  	* [databinding NoSuchMethodError with buildTool 3.4.0](#7-9)
+ 	* [AS连接真机调试出现 debug info can be unavailabe 的解决方法](#7-10)
 * [版本控制篇](#8)
  	* [git 修改 commit 记录](#8-1)
  	* [解决git ignore 文件不生效的问题](#8-2)
@@ -107,8 +111,63 @@ tags: [Android经验]
 	<item name="android:windowIsFloating">true</item>
 	```
 	此时 window 为 wrap_content，如果出现左右空白，则考虑使用上个问题的方案。
+	
+* <h4 id="1-21"> 当应用退回后台一段时间重返后，Fragment 切换重叠的解决方案 </h4>
+
+	在线上项目中我们遇到一个场景：当应用按下 Home 退回后台，然后过一段时间之后从后台拉起我们的项目。极少数机型在主页进行多个 *fragment* 的切换时出现了 *fragment* 的重叠。经过定位之后发现，这些机型的运存偏小，性能偏差，出现这种现象的原因是由于内存的压力的原因，系统并不知后台的程序哪一个才需要保持运行，就会尝试回收内存占用较大的页面，当我们的页面被系统销毁时，*fragmentActivity#onSaveInstanceState* 被执行并保存了一些瞬态信息，比如界面 *fragment* 的视图信息。当我们再次拉起应用的时候，会让原来的 *fragmentActivity* 重建并重新构建了一个新的 *fragment* ，此时会叠加到已经被恢复的 *fragment* 之上导致重叠。
+	
+	比较暴力的做法是不让 *activity* 保存状态，比如
+	
+	```
+	 @Override
+    public void onSaveInstanceState(Bundle outState) {
+    	 //直接不调用 super.onSaveInstanceState(outState);
+    	 //或者直接传递空数据 
+        super.onSaveInstanceState(new Bundle());
+    }
+	
+	```
+	
+	比较优雅的做法是，比如
+	
+	```
+	 @Override
+    public void onSaveInstanceState(Bundle outState) {
+    	 getSupportFragmentManager().putFragment(outState, you_key, CusFragment);
+	    super.onSaveInstanceState(outState);
+    }
+	
+	//在onCreate的时候判断是否已经存在保存的信息
+	 @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        if (savedInstanceState != null) {
+            CusFragment fragment =  (CusFragment)getSupportFragmentManager().getFragment(savedInstanceState, you_key);
+        } else {
+        	  //init CusFragment
+        }
+    }
+	```
+	
+* <h4 id="1-22"> 多个fragment 保存状态时可能出现 TransactionTooLargeException 的解决方案 </h4>
+
+	出现 `TransactionTooLargeException` 异常时，因为线上我们使用了 *FragmentStatePagerAdapter* 作为 *fragment* 适配器为了尽可能过缓存下浏览过的 *fragment* 以获得更好的体验，承载多个 *FragmentStatePagerAdapter#saveState* 会被调用并对每一个 *fragment* 的 *bundle* 数据进行保存。由于我们的 *bundle* 较大，并且保存下来的 *bundle* 并不会因为 *fragment* 被销毁而销毁，所以需要保存的 *bundle* 数据会一直增长，直到出现` TransactionTooLargeException` 异常. 我们参考[stackoverflow相关问题](https://stackoverflow.com/questions/11451393/what-to-do-on-transactiontoolargeexception) 直接重载 *saveState* 丢弃 *states* 内容。
+	
+	```
+    public Parcelable saveState() {
+	    Bundle bundle = (Bundle) super.saveState();
+	    bundle.putParcelableArray("states", null); // Never maintain any states from the base class, just null it out
+	    return bundle;
+    }
+	```
+	
+	另外推荐 [toolargetool](https://github.com/guardian/toolargetool) 工具可以在开发中实时观测页面内存变化。
+	
+	
 
 * <h4 id="1-4"> recyclerview 调用 notifyItemRemoved 方法移除某个 Item 之后因为引用 position 引起 crash 的原因</h4>
+
 	`notifyItemRemoved`方法并不会移除列表的数据源的数据项导致数据源中的数据与列表Item数目不一致，需要同步刷新数据源。
 
 * <h4 id="1-5"> recyclerview 局部刷新Item时会因为默认动画导致闪烁的解决方案</h4>
@@ -118,6 +177,7 @@ tags: [Android经验]
 	```
 	((SimpleItemAnimator)recyclerView.getItemAnimator()).setSupportsChangeAnimations(false);
 	```
+	
 * <h4 id="1-6"> recyclerview 中的 item 出现莫名的偏移滚动</h4>
 
 	这个问题经过定位存在于 viewholder 中的某个 view 可能提前获取到焦点。 同时在。alibaba-vlayout 库中也发现有人反馈改问题。 [issues-255](https://github.com/alibaba/vlayout/issues/225)  解决的方法是在 Recyclerview中外层父布局中添加 `android:descendantFocusability="blocksDescendants"` 用于父布局覆盖 Recyclerview 优先抢占焦点。
@@ -132,6 +192,7 @@ tags: [Android经验]
 	findFirstVisibleItemPosition -> 正常
 	findLast
 	```
+	
 * <h4 id="1-8"> textview 中富文本点击事件拦截了长按事件的解决方案</h4>	
 	这个问题常见于消息列表中，某条消息使用了ClickableSpan用于处理富媒体的点击事件，同时这个消息又需要支持长按复制。由于LinkMovementMethod方法在onTouchEvent一直返回true，可以通过自定义View.onTouchListener来替换setMovenmentMethod达到效果。
 	
@@ -223,6 +284,7 @@ tags: [Android经验]
 	    return false;
 	}
 	```
+	
 * <h4 id="1-10"> 如何仿蘑菇街/马蜂窝 Viewpager 装载图片之后切换时动态变更高度</h4>
 
 	imageViewPager 为普通的 Viewpager 对象
@@ -267,6 +329,7 @@ tags: [Android经验]
 	        });
 	```
 * <h4 id="1-11"> 如何控制 appbarLayout 随时定位到某个位置</h4>
+
 	```
 	CoordinatorLayout.Behavior behavior =((CoordinatorLayout.LayoutParams)mAppBarLayout.getLayoutParams()).getBehavior();
 	if (behavior instanceof AppBarLayout.Behavior) {
@@ -374,10 +437,10 @@ tags: [Android经验]
         </rotate>
     </item>
 </layer-list>
-	
 	```
 
 * <h4 id="1-18"> 关于属性动画中旋转 View 时部分机型出现 View 闪烁的解决方案 </h4>
+
 	在大神 app 信息流快捷评论模块中，在交付快捷评论动画的时候发现，使用属性动画实现的抖动效果在部分机型上出现闪烁。而我们的实现抖动效果是通过 `View.ROTATION` 来实现的。经过研究，部分机型因为硬件加速的原因导致的。为动画 view 进行以下设置
 	
 	```
@@ -385,11 +448,13 @@ tags: [Android经验]
 	```
 
 * <h4 id="1-19"> 关于 ConstraintLayout 的代码布局下的注意事项 </h4>
+
 	不同于其他 ViewGroup 控制子 View 的排版，ConstraintLayout 需要构建 `ConstraintSet` 对象来粘合。 在手动添加子 View 的场景下，可以通过 `ConstraintSet#clone(ConstraintLayout constraintLayout)` 来克隆当前已有 ConstraintLayout 的排版信息，然后最后调用 `ConstraintSet#applyTo(ConstraintLayout constraintLayout)` 确认最终的排版信息。
 
 * <h4 id="1-20"> TextView 在 6.0 版本下设置单行尾部缩略的坑 </h4>
-	在大神信息流中，有一些卡片信息需要设置单行缩略。在 MTL 兼容测试过程中发现有一些机型显示异常，经过归纳及校验，这部分机型的版本都是 < 6.0。 通过在 stackoverflow 也找到了相同的问题场景 [text ellipsize behavior in android version < 6.0](https://stackoverflow.com/questions/42524277/text-ellipsize-behavior-in-android-version-6-0) . 针对这部分版本的手机，我们需要在设置单行的时候把 `android:maxLines="1"` 改成 `android:singleLine="true"`。即使 IDE 提示该 API 已经过期了！
 
+	在大神信息流中，有一些卡片信息需要设置单行缩略。在 MTL 兼容测试过程中发现有一些机型显示异常，经过归纳及校验，这部分机型的版本都是 < 6.0。 通过在 stackoverflow 也找到了相同的问题场景 [text ellipsize behavior in android version < 6.0](https://stackoverflow.com/questions/42524277/text-ellipsize-behavior-in-android-version-6-0) . 针对这部分版本的手机，我们需要在设置单行的时候把 `android:maxLines="1"` 改成 `android:singleLine="true"`。即使 IDE 提示该 API 已经过期了！
+	
 
 <h3 id="2"><<服务篇>></h3>
 
@@ -414,6 +479,40 @@ tags: [Android经验]
         stopSelf();
         stopForeground(true);
     }
+	```
+	
+* <h4 id="2-2"> 全局的Context使用更为优雅的获取方案 </h4>
+	由于我们在优化 Application 启动时间时，打算移除 *applciation* 所有有关静态申明的变量，其中就包含全局 *context* 这个变量。我们参考的是 *leakCanary* 库的做法，使用 *ContentProvider* 来承载全局 *context* 的获取，原因是在 [ActivityThread](https://android.googlesource.com/platform/frameworks/base/+/master/core/java/android/app/ActivityThread.java) 的初始化流程中，*ContentProvider#onCreate()* 是在 *Application#attachBaseContext(Context)*  和 *Application#onCreate()* 之间的。所以获取的 *context* 是有效的
+	
+	```
+	class ContextProvider : ContentProvider() {
+	
+	    companion object {
+	        private lateinit var mContext: Context
+	        private lateinit var mApplication: Application
+	        fun getGlobalContext(): Context = mContext
+	        fun getGlobalApplication(): Application = mApplication
+	    }
+	    override fun onCreate(): Boolean {
+	        mContext = context!!
+	        mContext = context!!.applicationContext as Application
+	        return false
+	    }
+	
+	    override fun insert(uri: Uri, values: ContentValues?): Uri? = null
+	    override fun query(uri: Uri, projection: Array<out String>?, selection: String?, selectionArgs: Array<out String>?, sortOrder: String?): Cursor? = null
+	    override fun update(uri: Uri, values: ContentValues?, selection: String?, selectionArgs: Array<out String>?): Int = -1
+	    override fun delete(uri: Uri, selection: String?, selectionArgs: Array<out String>?): Int = -1
+	    override fun getType(uri: Uri): String? = null
+	}
+	
+
+	//manifest申明
+    <!-- Context提供者 -->
+    <provider
+            android:name=".ContextProvider"
+            android:authorities="${your_application_id}.contextprovider"
+            android:exported="false" />
 	```
 
 <h3 id="3"><<线程篇>></h3>
@@ -527,7 +626,7 @@ tags: [Android经验]
 	* 部分场景下，比如第三方消息推送，华为和小米拉起闪屏或 launcher intent无法区分，针对该做法是，限定进入闪屏/launcher的逻辑,剩余场景统一进入主页面B
 	
 	```
-if (后端控制是否需要进入特殊场景页面) {
+    if (后端控制是否需要进入特殊场景页面) {
         boolean goToA = false;
         if (getIntent() != null) {
             String action = getIntent().getAction();
@@ -551,8 +650,13 @@ if (后端控制是否需要进入特殊场景页面) {
 
 * <h4 id="6-10"> 针对 App 多场景拉起场景下的场景判断分析</h4>
 	
-	可参考我另一篇文章 [对线上项目拉起应用场景的思考总结](http://yummylau.com/2019/06/26/Adnroid_2019-06-06_%E5%AF%B9%E7%BA%BF%E4%B8%8A%E9%A1%B9%E7%9B%AE%E6%8B%89%E8%B5%B7%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF%E7%9A%84%E6%80%9D%E8%80%83%E6%80%BB%E7%BB%93/)
+	可参考我另一篇文章 [对线上项目拉起应用场景的思考总结](http://yummylau.com/2019/06/26/%E9%A1%B9%E7%9B%AE%E6%80%BB%E7%BB%93_2019-06-06_%E7%BA%BF%E4%B8%8A%E9%A1%B9%E7%9B%AE%E6%8B%89%E8%B5%B7%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF%E7%9A%84%E6%80%9D%E8%80%83%E6%80%BB%E7%BB%93/)
 	
+* <h4 id="6-12"> 8.0 部分 ROM 出现 Only fullscreen opaque activities can request orientation 的解决方案</h4>
+	
+	由于我们项目需要处理沉浸式，所以针对 *android:windowIsTranslucent* 的属性默认打开的。但是线上发现部分 8.0设备出现诡异的 crash，原因是我们对于页面的 *orientation* 申明都统一为 *portrait* 。查阅 android 源码的更新发现在 8.0 源码的逻辑里面这两个逻辑竟然不兼容，随后在 8.0 版本后谷歌进行了修复。但是国内部分 ROM 看起来并没有修复这个问题。后面同事提供了一个比较取巧的方案，通过为页面指定 *android:screenOrientation="behind"* 来避免 8.0 版本的问题同时兼容所有 android 版本。
+
+
 * <h4 id="6-11"> 9.0 android 支持明文连接（Http）</h4>
 
    Android 9（API级别28）开始，默认情况下禁用明文支持
@@ -664,6 +768,7 @@ if (后端控制是否需要进入特殊场景页面) {
 	class Landroidx/databinding/ViewDataBinding; or its super classes
 	(declaration of 'androidx.databinding.ViewDataBinding'
 	```
+	
 	原因我们使用的 aar 库中使用了旧版本 gradle 编译，新版本主端 gradle 升级了，导致旧的 ViewDataBinding 构造器签名匹配不上新版 androidx.databinding.ViewDataBinding 的签名。
 	
 	```
@@ -673,6 +778,11 @@ if (后端控制是否需要进入特殊场景页面) {
 	protected ViewDataBinding(Object bindingComponent, View root, int localFieldCount)
 	```
 	幸运的是，3.4.1已经修复了。更改 3.4.0 -> 3.4.1 就可以了。
+	
+* <h4 id="7-10"> AS连接真机调试出现 debug info can be unavailabe 的解决方法</h4>
+
+	在使用 AS 连接华为真机调试的时候，IDE 一直出现 *“Warning: debug info can be unavailable. Please close other application using ADB: Restart ADB integration and try again”* 的错误提示。 重启 ADB 无数遍和关闭除 IDE 意外可能连接 ADB 的软件都无效，最终重启真机解决。原因是ADB连接的问题，因为有时ADB会在真实/虚拟设备上缓存一个无效的连接，并且由于该连接繁忙导致也无法连接到该设备。
+	
 
 <h3 id="8"><<版本控制篇>></h3>
 	
@@ -719,7 +829,8 @@ if (后端控制是否需要进入特殊场景页面) {
 	utf-32编码下测试：
 	“java测试”.length() 返回 6，“GBK测试”.getBytes().length() 返回 24
 	总结：1个中文字符或英文字符都占4个字节
-```
+    ```
 
 * <h4 id="9-4"> 关于 emoji 编码的长度计算问题 </h4>
-	重点熟悉下 Unicode 编码标识的 emoji 下针对多平面 emoji 的拆分逻辑。[可参考这篇文章](http://objcer.com/2017/07/20/explore-emoji-length/)
+
+    重点熟悉下 Unicode 编码标识的 emoji 下针对多平面 emoji 的拆分逻辑。[可参考这篇文章](http://objcer.com/2017/07/20/explore-emoji-length/)
