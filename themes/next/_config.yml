@@ -161,6 +161,7 @@ links_layout: block
 # Sidebar Avatar
 # in theme directory(source/images): /images/avatar.gif
 # in site  directory(source/uploads): /uploads/avatar.gif
+# 修改与 25/5/19
 avatar: /uploads/avatar.jpg
 
 # Table Of Contents in the Sidebar
